@@ -6,9 +6,15 @@
 
 #include <allegro5/allegro5.h>																																												//Biblioteca base do Allegro
 #include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
-#include <allegro5/allegro_primitives.h>																																									//Biblioteca de figuras básicas
+#include <allegro5/allegro_primitives.h>	
+#include <allegro5/allegro_image.h>
+#include <allegro5/timer.h>																																											//Biblioteca de primitivas do Allegro
 
 #include "enemy.h"
+#include "player.h"
+
+#define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
+#define Y_SCREEN 640		
 
 char is_nat(char *string){
 	for (int i = 0; string[i]; i++) 
@@ -37,6 +43,7 @@ void update_report(FILE *report, space *board, shot_sentinel *list, int r){
 void execute_event(space *board, shot_sentinel *list){
 //IMPLEMENTAR!
 //A cada evento:
+
 //  Os tiros que não acertaram o alvo, ou não sairam do tabuleiro devem ser atualizados (movidos para frente no tabuleiro)
 //  Os inimigos que não tem outros inimigos em sua frente devem atirar
 	shot *current = NULL;
@@ -68,69 +75,72 @@ void execute_event(space *board, shot_sentinel *list){
 }
 
 int main(int argc, char** argv){
-	int opt;
-	int x = -1;
-	int y = -1;
-	int e = -1;
-	int r = -1;
-	char *o = 0; 
-
-	opt = getopt(argc, argv, "x:y:e:r:o:");
-	if (opt == -1){
-		fprintf(stderr, "Forma de uso: ./space_enemies -x map_x_limit -y map_y_limit -e map_enemy_lines -r rounds -o output\n");
-		return 1;
-	}	
-
-	do {
-		switch (opt) {
-		case 'x':
-			if (is_nat(optarg)) x = atoi(optarg);
-			else {fprintf(stderr, "ERRO: o número de colunas é inválido !\n"); return 2;}
-			break;
-		case 'y':
-			if (is_nat(optarg)) y = atoi(optarg);
-			else {fprintf(stderr, "ERRO: o número de colunas é inválido!\n"); return 3;}
-			break;
-		case 'e':
-			if (is_nat(optarg)) e = atoi(optarg);
-			else {fprintf(stderr, "ERRO: o número de linhas de inimigos é inválido!\n"); return 4;}
-			break;
-		case 'r':
-			if (is_nat(optarg)) r = atoi(optarg);
-			else {fprintf(stderr, "ERRO: o número de rodadas é inválido!\n"); return 5;}
-			break;
-		case 'o':
-			o = strdup(optarg);
-			break;
-		default:
-			fprintf(stderr, "Forma de uso: ./space_enemies -x map_x_limit -y map_y_limit -e map_enemy_lines -r rounds -o output\n");
-			return 1;
-		}
-	} while ((opt = getopt(argc, argv, "x:y:e:r:o:")) != -1);
-
-	//NÃO ESQUEÇA DE TRATAR POSSÍVEIS ERROS!
+	player* player = create_player(X_SCREEN/2, Y_SCREEN/2, 3, 0, 0);
+	// Funcoes allegro
+	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
+	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
-	space *board = create_board(y, x, e);
-	if(board == 0){
-		fprintf(stderr, "ERRO: o numero de linhas de inimigos é superior ao tamanho do tabuleiro!\n");
+	al_install_keyboard();																																													//Habilita a entrada via teclado (eventos de teclado), no programa
+
+	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
+	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();																																					//Cria a fila de eventos; todos os eventos (programação orientada a eventos) 
+	ALLEGRO_FONT* font = al_create_builtin_font();																																							//Carrega uma fonte padrão para escrever na tela (é bitmap, mas também suporta adicionar fontes ttf)
+	ALLEGRO_DISPLAY* disp = al_create_display(X_SCREEN, Y_SCREEN);			
+
+	al_register_event_source(queue, al_get_keyboard_event_source());																																		//Indica que eventos de teclado serão inseridos na nossa fila de eventos
+	al_register_event_source(queue, al_get_display_event_source(disp));																																		//Indica que eventos de tela serão inseridos na nossa fila de eventos
+	al_register_event_source(queue, al_get_timer_event_source(timer));																																		//Indica que eventos de relógio serão inseridos na nossa fila de eventos
+
+	ALLEGRO_EVENT event;																																												//Cria uma variável para armazenar o evento atual
+	al_start_timer(timer);																																//Cria uma janela para o programa, define a largura (x) e a altura (y) da tela em píxeis (320x320, neste caso)
+
+	// Sprites do jogo
+	
+	ALLEGRO_BITMAP* sprite_sheet = al_load_bitmap("sprites/spritesheet.png");
+	if(!sprite_sheet){
+		fprintf(stderr, "Falha ao carregar spritesheet!\n");
 		exit(1);
 	}
-	FILE *report = fopen(o, "w+");
-	shot_sentinel* shot_list = create_shotlist();
+	int sprite_width = 16;
+	int sprite_height = 16;
+	int sprite_x = 0;
+	int sprite_y = 0;
 
-	for (int t = 0; t < r; t++){
-		execute_event(board, shot_list);
-		update_report(report, board, shot_list, t);
+
+	while(1){
+		// Laço principal do jogo
+		al_wait_for_event(queue, &event);
+		// Verifica se a tecla ESC está pressionada
+		if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE){
+			break;
+    	}
+		// Verifica se o botão de fechar foi pressionado
+		if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+			break;
+		}
+		if(player->lifes < 0){
+
+		}else{
+			if(event.type == 30){
+				// update_position(player);
+				al_clear_to_color(al_map_rgb(0, 0, 0));		
+        		al_draw_bitmap_region(sprite_sheet, sprite_x, sprite_y, sprite_width, sprite_height, player->position_x, player->position_y, 0);				al_flip_display();																																		//Limpa a tela para a cor preta
+			}
+		}
 	}
 
-	// Funcoes allegro
+	// clean_board(board);
+	// destroy_board(board);
+	// clean_shots(shot_list);
+	// free(shot_list);
+	// free(o);
+	// fclose(report);
 
-	clean_board(board);
-	destroy_board(board);
-	clean_shots(shot_list);
-	free(shot_list);
-	free(o);
-	fclose(report);
+	// Allegro
+	al_destroy_font(font);																																													//Destrutor da fonte padrão
+	al_destroy_display(disp);																																												//Destrutor da tela
+	al_destroy_timer(timer);																																												//Destrutor do relógio
+	al_destroy_event_queue(queue);	
 
 	return 0;
 }
