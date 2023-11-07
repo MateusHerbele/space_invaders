@@ -12,6 +12,7 @@
 
 #include "enemy.h"
 #include "player.h"
+#include "Joystick.h"
 
 #define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
 #define Y_SCREEN 640		
@@ -74,6 +75,27 @@ void execute_event(space *board, shot_sentinel *list){
 	update_shots(board, list);
 }
 
+
+// update position
+void update_position(player *player){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
+	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
+		player_move(player, -1, X_SCREEN);		
+		if(player->sprite_x < 32) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
+	}
+	else 
+	if (player->control->right){																																											//Se o botão de movimentação para direita do controle do primeir ojogador está ativado...
+		player_move(player, 1, X_SCREEN);	
+		if(player->sprite_x < 32) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
+	}else
+		player->sprite_x = 0;
+	// if (player->control->fire){																																											//Verifica se o primeiro jogador está atirando (!)
+	// 	if (!player->gun->timer){																																											//Verifica se a arma do primeiro jogador não está em cooldown (!)
+	// 		square_shot(player); 																																											//Se não estiver, faz um disparo (!)
+	// 		player->gun->timer = PISTOL_COOLDOWN;																																							//Inicia o cooldown da arma (!)
+	// 	} 
+	// }
+	// update_bullets(player);																																												//Atualiza os disparos do primeiro jogador (!)
+}
 int main(int argc, char** argv){
 	player* player = create_player(X_SCREEN/2, Y_SCREEN/2, 3, 0, 0);
 	// Funcoes allegro
@@ -94,6 +116,12 @@ int main(int argc, char** argv){
 	ALLEGRO_EVENT event;																																												//Cria uma variável para armazenar o evento atual
 	al_start_timer(timer);																																//Cria uma janela para o programa, define a largura (x) e a altura (y) da tela em píxeis (320x320, neste caso)
 
+	// Inicia imagens
+	al_init_image_addon();
+
+	// Inicia Primtivos
+	al_init_primitives_addon();
+
 	// Sprites do jogo
 	
 	ALLEGRO_BITMAP* sprite_sheet = al_load_bitmap("sprites/spritesheet.png");
@@ -103,13 +131,12 @@ int main(int argc, char** argv){
 	}
 	int sprite_width = 16;
 	int sprite_height = 16;
-	int sprite_x = 0;
-	int sprite_y = 0;
 
 
 	while(1){
 		// Laço principal do jogo
 		al_wait_for_event(queue, &event);
+		
 		// Verifica se a tecla ESC está pressionada
 		if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE){
 			break;
@@ -121,10 +148,23 @@ int main(int argc, char** argv){
 		if(player->lifes < 0){
 
 		}else{
-			if(event.type == 30){
-				// update_position(player);
+			if(event.type == ALLEGRO_EVENT_TIMER){
+				update_position(player);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
-        		al_draw_bitmap_region(sprite_sheet, sprite_x, sprite_y, sprite_width, sprite_height, player->position_x, player->position_y, 0);				al_flip_display();																																		//Limpa a tela para a cor preta
+				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x, player->position_y, sprite_width * 2, sprite_height * 2, 0);				
+				al_flip_display();																																		
+			}else{
+				if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado
+				if (event.keyboard.keycode == ALLEGRO_KEY_A){
+					joystick_left(player->control);
+					// player->sprite_x = 16;
+				} 																															//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
+				else if (event.keyboard.keycode == ALLEGRO_KEY_D){
+					joystick_right(player->control);
+					// player->sprite_x = 16;
+				} 																													//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
+				else if (event.keyboard.keycode == 3) joystick_fire(player->control);																														//Indica o evento correspondente no controle do primeiro joagdor (botão de disparo - c) (!)					
+				}
 			}
 		}
 	}

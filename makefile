@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -o3 -g -Wall
 PKG_CONFIG = pkg-config
-ALLEGRO_MODULES = allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5
+ALLEGRO_MODULES = allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5
 LIBS = $(shell $(PKG_CONFIG) --libs $(ALLEGRO_MODULES))
 CFLAGS += $(shell $(PKG_CONFIG) --cflags $(ALLEGRO_MODULES))
 
-SRC = main.c enemy.c space.c player.c
+SRC = main.c enemy.c space.c player.c Joystick.c
 OBJ = $(SRC:.c=.o)
 
 nomeDoPrograma = space_invaders
