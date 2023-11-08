@@ -194,8 +194,9 @@ int main(int argc, char** argv){
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);				
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
 					printf("entrei aqui\n");
-					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 16, --index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
+					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , --index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
 				}
+				if(player->gun->timer) player->gun->timer--;
 				al_flip_display();																																		
 			}else{
 				if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado
