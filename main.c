@@ -13,6 +13,8 @@
 #include "enemy.h"
 #include "player.h"
 #include "Joystick.h"
+#include "Pistol.h"
+#include "Bullet.h"
 
 #define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
 #define Y_SCREEN 640		
@@ -75,19 +77,50 @@ void execute_event(space *board, shot_sentinel *list){
 	update_shots(board, list);
 }
 
-
+void update_bullets(player *player){																																										//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
+	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
+	for (bullet *index = player->gun->shots; index != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
+		if (!index->trajectory) index->x -= BULLET_MOVE;																																					//Se a trajetória for para a esquerda, atualiza a posição para a esquerda (!)
+		else if (index->trajectory == 1) index->x += BULLET_MOVE;																																			//Se a trajetória for para a direita, atualiza a posição para a esquerda (!)
+		
+		if ((index->x < 0) || (index->x > X_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
+			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
+				previous->next = index->next;																																								//Se não for, salva o próximo projétil (!)
+				bullet_destroy(index);																																										//Chama o destrutor para o projétil atual (!)
+				index = (bullet*) previous->next;																																							//Atualiza para o próximo projétil (!)
+			}
+			else {																																															//Se for o primeiro projétil da lista (!)
+				player->gun->shots = (bullet*) index->next;																																					//Atualiza o projétil no início da lista (!)
+				bullet_destroy(index);																																										//Chama o destrutor para o projétil atual (!)
+				index = player->gun->shots;																																									//Atualiza para o próximo projétil (!)
+			}
+		}
+		else{																																																//Se não saiu da tela (!)
+			previous = index;																																												//Atualiza o projétil anterior (para a próxima iteração) (!)
+			index = (bullet*) index->next;																																									//Atualiza para o próximo projétil (!)
+		}
+	}
+}
 // update position
 void update_position(player *player){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
-		if(player->sprite_x < 32) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
+		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
 	}
 	else 
 	if (player->control->right){																																											//Se o botão de movimentação para direita do controle do primeir ojogador está ativado...
 		player_move(player, 1, X_SCREEN);	
-		if(player->sprite_x < 32) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
-	}else
+		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
+	
+	}
+	else
 		player->sprite_x = 0;
+	if(player->control->fire){
+		if(!player->gun->timer){
+			player_shot(player);
+			player->gun->timer = PISTOL_COOLDOWN;
+		}	
+	}
 	// if (player->control->fire){																																											//Verifica se o primeiro jogador está atirando (!)
 	// 	if (!player->gun->timer){																																											//Verifica se a arma do primeiro jogador não está em cooldown (!)
 	// 		square_shot(player); 																																											//Se não estiver, faz um disparo (!)
@@ -97,7 +130,7 @@ void update_position(player *player){																																					//Fun�
 	// update_bullets(player);																																												//Atualiza os disparos do primeiro jogador (!)
 }
 int main(int argc, char** argv){
-	player* player = create_player(X_SCREEN/2, Y_SCREEN/2, 3, 0, 0);
+	player* player = create_player(X_SCREEN/2, Y_SCREEN/2, 3, 0);
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
@@ -129,6 +162,13 @@ int main(int argc, char** argv){
 		fprintf(stderr, "Falha ao carregar spritesheet!\n");
 		exit(1);
 	}
+	ALLEGRO_BITMAP* icon = al_load_bitmap("sprites/icon.png");
+	if(!icon){
+		fprintf(stderr, "Falha ao carregar o ícone do jogo!\n");
+		exit(1);
+	}
+	al_set_display_icon(disp, icon);
+	
 	int sprite_width = 16;
 	int sprite_height = 16;
 
@@ -138,7 +178,7 @@ int main(int argc, char** argv){
 		al_wait_for_event(queue, &event);
 		
 		// Verifica se a tecla ESC está pressionada
-		if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE){
+		if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q){
 			break;
     	}
 		// Verifica se o botão de fechar foi pressionado
@@ -151,19 +191,23 @@ int main(int argc, char** argv){
 			if(event.type == ALLEGRO_EVENT_TIMER){
 				update_position(player);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
-				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x, player->position_y, sprite_width * 2, sprite_height * 2, 0);				
+				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);				
+				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
+					printf("entrei aqui\n");
+					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 16, --index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
+				}
 				al_flip_display();																																		
 			}else{
 				if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado
-				if (event.keyboard.keycode == ALLEGRO_KEY_A){
+				if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT){
 					joystick_left(player->control);
 					// player->sprite_x = 16;
 				} 																															//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
-				else if (event.keyboard.keycode == ALLEGRO_KEY_D){
+				else if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT){
 					joystick_right(player->control);
 					// player->sprite_x = 16;
 				} 																													//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
-				else if (event.keyboard.keycode == 3) joystick_fire(player->control);																														//Indica o evento correspondente no controle do primeiro joagdor (botão de disparo - c) (!)					
+				else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE || event.keyboard.keycode == ALLEGRO_KEY_Z) joystick_fire(player->control);																														//Indica o evento correspondente no controle do primeiro joagdor (botão de disparo - c) (!)					
 				}
 			}
 		}

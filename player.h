@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "guns.h"
+#include "Pistol.h"
 #include "Joystick.h"
 
 #define STEPS 10
@@ -17,11 +17,11 @@ typedef struct player{
     // unsignet int power_ups;
     // unsigned int power_ups_time;
     joystick* control;
-    gun* player_gun;
+    pistol* gun;
 } player;
 
-player* create_player(int x, int y, int lifes, int score, gun* player_gun);
+player* create_player(int x, int y, int lifes, int score);
 void player_move(player *player, short trajectory, unsigned short max_x);							//Implementação da função "player_move"
-
+void player_shot(player *player);
 
 #endif // PLAYER_H
