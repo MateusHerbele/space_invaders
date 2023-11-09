@@ -80,10 +80,11 @@ void execute_event(space *board, shot_sentinel *list){
 void update_bullets(player *player){																																										//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
 	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
 	for (bullet *index = player->gun->shots; index != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
-		if (!index->trajectory) index->x -= BULLET_MOVE;																																					//Se a trajetória for para a esquerda, atualiza a posição para a esquerda (!)
-		else if (index->trajectory == 1) index->x += BULLET_MOVE;																																			//Se a trajetória for para a direita, atualiza a posição para a esquerda (!)
+		index->y -= BULLET_MOVE;																																											//Atualiza a posição do projétil (!)
+		// if (!index->trajectory) index->x -= BULLET_MOVE;																																					//Se a trajetória for para a esquerda, atualiza a posição para a esquerda (!)
+		// else if (index->trajectory == 1) index->x += BULLET_MOVE;																																			//Se a trajetória for para a direita, atualiza a posição para a esquerda (!)
 		
-		if ((index->x < 0) || (index->x > X_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
+		if ((index->y < 0) || (index->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
 			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
 				previous->next = index->next;																																								//Se não for, salva o próximo projétil (!)
 				bullet_destroy(index);																																										//Chama o destrutor para o projétil atual (!)
@@ -115,7 +116,8 @@ void update_position(player *player){																																					//Fun�
 	}
 	else
 		player->sprite_x = 0;
-	if(player->control->fire){
+	
+	if(!has_shot_column(player->gun->shots, player->position_x) && player->control->fire){
 		if(!player->gun->timer){
 			player_shot(player);
 			player->gun->timer = PISTOL_COOLDOWN;
@@ -127,17 +129,17 @@ void update_position(player *player){																																					//Fun�
 	// 		player->gun->timer = PISTOL_COOLDOWN;																																							//Inicia o cooldown da arma (!)
 	// 	} 
 	// }
-	// update_bullets(player);																																												//Atualiza os disparos do primeiro jogador (!)
+	update_bullets(player);																																												//Atualiza os disparos do primeiro jogador (!)
 }
 int main(int argc, char** argv){
-	player* player = create_player(X_SCREEN/2, Y_SCREEN/2, 3, 0);
+	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16, 3, 0);
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
 	al_install_keyboard();																																													//Habilita a entrada via teclado (eventos de teclado), no programa
 
-	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
+	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();																																					//Cria a fila de eventos; todos os eventos (programação orientada a eventos) 
 	ALLEGRO_FONT* font = al_create_builtin_font();																																							//Carrega uma fonte padrão para escrever na tela (é bitmap, mas também suporta adicionar fontes ttf)
 	ALLEGRO_DISPLAY* disp = al_create_display(X_SCREEN, Y_SCREEN);			
@@ -193,8 +195,9 @@ int main(int argc, char** argv){
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);				
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
-					printf("entrei aqui\n");
-					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , --index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
+					// printf("entrei aqui\n");
+					// index->y -= BULLET_MOVE;
+					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
 				}
 				if(player->gun->timer) player->gun->timer--;
 				al_flip_display();																																		

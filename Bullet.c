@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include "Bullet.h"
 
-bullet* bullet_create(unsigned short x, unsigned short y, unsigned char trajectory, bullet *next){			//Implementação da função "bullet_create"
-
-	if ((trajectory < 0) || (trajectory > 1)) return NULL;													//Verifica se a trajetória informada para o projétil é válida
+bullet* bullet_create(unsigned short x, unsigned short y, char trajectory, bullet *next){			//Implementação da função "bullet_create"
+	if ((trajectory < -1) || (trajectory > 1)) return NULL;
 
 	bullet *new_bullet = (bullet*) malloc(sizeof(bullet));													//Aloca memória na heap para uma instância de projétil
 	if (!new_bullet) return NULL;																			//Verifica o sucesso da alocação de memória; retorna NULL em caso de falha
@@ -15,11 +14,17 @@ bullet* bullet_create(unsigned short x, unsigned short y, unsigned char trajecto
 }
 
 void bullet_move(bullet *elements){																			//Implementação da função "bullet_move"
-
 	for (bullet *index = elements; index != NULL; index = (bullet*) index->next){							//Para cada projétil presente na lista de projéteis informada
 		if (!index->trajectory) index->x = index->x - BULLET_MOVE;											//Se a trajetória for para a esquerda, movimenta um passo à esquerda
 		else index->x = index->x + BULLET_MOVE;																//Se a trajetória for para a direita, movimenta um passo à direita
 	}
+}
+
+int has_shot_column(bullet* elements, int column){															//Implementação da função "has_shot_column"
+	for (bullet *index = elements; index != NULL; index = (bullet*) index->next){							//Para cada projétil presente na lista de projéteis informada
+		if (index->x + 32 > column && index->x - 32 < column) return 1;								//Se a trajetória for para a esquerda, movimenta um passo à esquerda														//Se a trajetória for para a direita, movimenta um passo à direita
+	}
+	return 0;
 }
 
 void bullet_destroy(bullet *element){																		//Implementação da função "bullet_destroy"

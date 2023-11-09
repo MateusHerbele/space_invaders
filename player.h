@@ -4,7 +4,7 @@
 #include "Pistol.h"
 #include "Joystick.h"
 
-#define STEPS 10
+#define STEPS 5
 
 typedef struct player{
 	int position_x;

@@ -10,7 +10,7 @@ pistol* pistol_create(){																				//Implementação da função "pisto
 	return new_pistol;																					//Retorna a nova instância de pistola (!)
 }
 
-bullet* pistol_shot(unsigned short x, unsigned short y, unsigned char trajectory, pistol *gun){			//Implementação da função "pistol_shot" (!)
+bullet* pistol_shot(unsigned short x, unsigned short y, char trajectory, pistol *gun){			//Implementação da função "pistol_shot" (!)
 	
 	bullet *new_bullet = bullet_create(x, y, trajectory, gun->shots);									//Cria uma nova instância de projétil a ser disparado (!)
 	if (!new_bullet) return NULL;																		//Verifica o sucesso da alocação de memória; retorna NULL em caso de falha (!)

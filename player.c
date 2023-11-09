@@ -21,12 +21,12 @@ player* create_player(int x, int y, int lifes, int score){
     return new_player;
 }
 void player_move(player *player, short trajectory, unsigned short max_x){									//Implementação da função "player_move"
-    if ((player->position_x + (STEPS* trajectory)) && (player->position_x + (STEPS * trajectory) < max_x)) 
+    if ((player->position_x + (STEPS* trajectory) -16 > 0) && (player->position_x + (STEPS * trajectory) + 16  < max_x)) 
         player->position_x = player->position_x + (STEPS * trajectory);
 } 
 
 void player_shot(player *player){
     bullet* shot;
-    shot = pistol_shot(player->position_x, player->position_y - 16, 1, player->gun);										//Quadrado atira para a esquerda (!)
+    shot = pistol_shot(player->position_x, player->position_y - 16, -1, player->gun);										//Quadrado atira para a esquerda (!)
 	player->gun->shots = shot;
 }

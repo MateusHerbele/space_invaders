@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "enemy.h"
+#include "Bullet.h"
 
 shot_sentinel* create_shotlist(void){
 	shot_sentinel *list = (shot_sentinel*) malloc (sizeof(shot_sentinel));

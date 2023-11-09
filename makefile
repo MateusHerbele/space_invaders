@@ -10,7 +10,7 @@ OBJ = $(SRC:.c=.o)
 
 nomeDoPrograma = space_invaders
 
-all: $(nomeDoPrograma)
+all: $(nomeDoPrograma) clean
 
 $(nomeDoPrograma): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)

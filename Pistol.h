@@ -11,7 +11,7 @@ typedef struct {																												//Definição da estrutura de uma pi
 } pistol;																														//Definição do nome da estrutura (!)
 
 pistol* pistol_create();																										//Protótipo da função de criação de uma pistola (!)
-bullet* pistol_shot(unsigned short x, unsigned short y, unsigned char trajectory, pistol *gun);									//Protótipo da função de disparo de uma pistola (!)
+bullet* pistol_shot(unsigned short x, unsigned short y, char trajectory, pistol *gun);									//Protótipo da função de disparo de uma pistola (!)
 void pistol_destroy(pistol *element);																							//Protótipo da função de destruição de uma pistola (!)
 
 #endif																															//Guardas de inclusão (!)
