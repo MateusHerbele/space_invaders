@@ -3,7 +3,7 @@
 
 #include "player.h"
 
-player* create_player(int x, int y, int lifes, int score){
+player* create_player(int x, int y){
     player* new_player = (player*) malloc(sizeof(player));
     if(new_player == 0){
         fprintf(stderr, "ERRO: não foi possível alocar memória para o jogador!\n");
@@ -11,9 +11,7 @@ player* create_player(int x, int y, int lifes, int score){
     }
     new_player->position_x = x;
     new_player->position_y = y;
-    new_player->velocity_x = 0;
-    new_player->velocity_y = 0;
-    new_player->lifes = lifes;
+    new_player->lifes = 3;
     new_player->sprite_x = 0;
     new_player->sprite_y = 0;    
     new_player->gun = pistol_create();

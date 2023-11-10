@@ -19,63 +19,63 @@
 #define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
 #define Y_SCREEN 640		
 
-char is_nat(char *string){
-	for (int i = 0; string[i]; i++) 
-		if (!isdigit(string[i])) 
-			return 0;
-	return 1; 
-}
+// char is_nat(char *string){
+// 	for (int i = 0; string[i]; i++) 
+// 		if (!isdigit(string[i])) 
+// 			return 0;
+// 	return 1; 
+// }
 
-void update_report(FILE *report, space *board, shot_sentinel *list, int r){
-	fprintf(report, "============= ROUND %d =============\n=> MAP:\n", r);
-	for (int i = 1; i <= board->max_y; i++){
-		for (int j = 1; j <= board->max_x; j++){
-			if (board->map[i][j].entity)
-				fprintf(report, "| E ");
-			else
-				fprintf(report, "| 0 ");
-		}
-		fprintf(report, "|\n");
-	}
-	fprintf(report, "\n=> SHOTS:\n");
-	for (shot *i = (shot*) list->first; i; i = (shot*) i->next) 
-		fprintf(report, " - x: %u, y: %u\n", i->position_x, i->position_y);
-	fprintf(report, "\n====================================\n\n");
-}
+// void update_report(FILE *report, space *board, shot_sentinel *list, int r){
+// 	fprintf(report, "============= ROUND %d =============\n=> MAP:\n", r);
+// 	for (int i = 1; i <= board->max_y; i++){
+// 		for (int j = 1; j <= board->max_x; j++){
+// 			if (board->map[i][j].entity)
+// 				fprintf(report, "| E ");
+// 			else
+// 				fprintf(report, "| 0 ");
+// 		}
+// 		fprintf(report, "|\n");
+// 	}
+// 	fprintf(report, "\n=> SHOTS:\n");
+// 	for (shot *i = (shot*) list->first; i; i = (shot*) i->next) 
+// 		fprintf(report, " - x: %u, y: %u\n", i->position_x, i->position_y);
+// 	fprintf(report, "\n====================================\n\n");
+// }
 
-void execute_event(space *board, shot_sentinel *list){
-//IMPLEMENTAR!
-//A cada evento:
+// void execute_event(space *board, shot_sentinel *list){
+// //IMPLEMENTAR!
+// //A cada evento:
 
-//  Os tiros que não acertaram o alvo, ou não sairam do tabuleiro devem ser atualizados (movidos para frente no tabuleiro)
-//  Os inimigos que não tem outros inimigos em sua frente devem atirar
-	shot *current = NULL;
-	unsigned int hasShot = 0; // variavel para verificar se já tem um tiro na coluna
-	for (int i = 1; i <= board->max_y; i++){ 
-		/*
-		começa em 1, tanto i quanto j, pois os mapas são gerados seguindo essa mesma inicialização 
-		no loop, assim, aqui faço o mesmo
-		*/
-		hasShot = 0; // reinicia o hasShot
-		for (int j = 1; j <= board->max_x; j++){
-			if (!board->map[i][j].entity) continue; // se não tiver uma entidade, continua
-			if(i+1 <= board->max_y && board->map[i+1][j].entity) continue; // se tiver uma entidade na frente, continua
-			if(board->map[i][j].type == SHIP || board->map[i][j].type == OBSTACLE) continue; // se não for um inimigo, continua
-			current = list->first; // volta o current para o inicio da lista
-			while(current != NULL){ // percorre a lista de tiros
-				if((current->position_x == j)){ // se já tiver um tiro na mesma coluna
-					hasShot = 1;
-					break;
-				} // se já tem um tiro na coluna sai do loop
-				current = current->next;
-			}
-			if(!hasShot){ // caso não tenha adiciona na lista
-				straight_shoot(board, list, board->map[i][j].entity);
-			}
-		}
-	}
-	update_shots(board, list);
-}
+// //  Os tiros que não acertaram o alvo, ou não sairam do tabuleiro devem ser atualizados (movidos para frente no tabuleiro)
+// //  Os inimigos que não tem outros inimigos em sua frente devem atirar
+// 	shot *current = NULL;
+// 	unsigned int hasShot = 0; // variavel para verificar se já tem um tiro na coluna
+// 	for (int i = 1; i <= board->max_y; i++){ 
+// 		/*
+// 		começa em 1, tanto i quanto j, pois os mapas são gerados seguindo essa mesma inicialização 
+// 		no loop, assim, aqui faço o mesmo
+// 		*/
+// 		hasShot = 0; // reinicia o hasShot
+// 		for (int j = 1; j <= board->max_x; j++){
+// 			if (!board->map[i][j].entity) continue; // se não tiver uma entidade, continua
+// 			if(i+1 <= board->max_y && board->map[i+1][j].entity) continue; // se tiver uma entidade na frente, continua
+// 			if(board->map[i][j].type == SHIP || board->map[i][j].type == OBSTACLE) continue; // se não for um inimigo, continua
+// 			current = list->first; // volta o current para o inicio da lista
+// 			while(current != NULL){ // percorre a lista de tiros
+// 				if((current->position_x == j)){ // se já tiver um tiro na mesma coluna
+// 					hasShot = 1;
+// 					break;
+// 				} // se já tem um tiro na coluna sai do loop
+// 				current = current->next;
+// 			}
+// 			if(!hasShot){ // caso não tenha adiciona na lista
+// 				straight_shoot(board, list, board->map[i][j].entity);
+// 			}
+// 		}
+// 	}
+// 	update_shots(board, list);
+// }
 
 void update_bullets(player *player){																																										//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
 	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
@@ -103,7 +103,7 @@ void update_bullets(player *player){																																										//
 	}
 }
 // update position
-void update_position(player *player){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
+void update_position(player *player, enemy** enemies, int n_enemies){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
 		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
@@ -129,10 +129,12 @@ void update_position(player *player){																																					//Fun�
 	// 		player->gun->timer = PISTOL_COOLDOWN;																																							//Inicia o cooldown da arma (!)
 	// 	} 
 	// }
-	update_bullets(player);																																												//Atualiza os disparos do primeiro jogador (!)
+	update_bullets(player);			
+																																									//Atualiza os disparos do primeiro jogador (!)
 }
 int main(int argc, char** argv){
-	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16, 3, 0);
+	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
+	enemy** enemies =  create_enemies(66, 6, 11);
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
@@ -173,7 +175,8 @@ int main(int argc, char** argv){
 	
 	int sprite_width = 16;
 	int sprite_height = 16;
-
+	
+	int n_enemies = 66;
 
 	while(1){
 		// Laço principal do jogo
@@ -191,9 +194,11 @@ int main(int argc, char** argv){
 
 		}else{
 			if(event.type == ALLEGRO_EVENT_TIMER){
-				update_position(player);
+				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
-				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);				
+				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
+				//generate_enemies(enemies, n_enemies, sprite_sheet, X_SCREEN);		
+				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN);
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
 					// printf("entrei aqui\n");
 					// index->y -= BULLET_MOVE;
