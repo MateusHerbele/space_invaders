@@ -7,6 +7,7 @@
 #include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
 #include <allegro5/allegro_primitives.h>	
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_color.h>
 #include <allegro5/timer.h>				
 
 typedef struct shot shot;

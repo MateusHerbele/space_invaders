@@ -103,7 +103,7 @@ void update_bullets(player *player){																																										//
 	}
 }
 // update position
-void update_position(player *player, enemy** enemies, int n_enemies){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
+void update_position(player *player){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
 		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
@@ -194,7 +194,7 @@ int main(int argc, char** argv){
 
 		}else{
 			if(event.type == ALLEGRO_EVENT_TIMER){
-				update_position(player, enemies, n_enemies);
+				update_position(player);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
 				//generate_enemies(enemies, n_enemies, sprite_sheet, X_SCREEN);		

@@ -104,7 +104,7 @@ enemy* create_enemy(int x, int y){
     new_enemy->position_y = y;
     new_enemy->sprite_x = 80;
     new_enemy->sprite_y = 16;    
-	new_enemy->direction = 1;
+	new_enemy->direction = -1; // começam indo pra esquerda
     new_enemy->gun = pistol_create();
     return new_enemy;
 }
@@ -137,28 +137,53 @@ void generate_enemies(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_she
 }
 
 void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x){
-    int speed = 2; // define a velocidade do movimento
-	
-	if(enemies[0]->position_x <= 32 || enemies[n_enemies-1]->position_x >= max_x - 32){
+    int speed = 16; // define a velocidade do movimento
+	static int animation_delay = 40;
+	static int animation_counter = 0;
+
+	// preciso descobrir oq está mais a esquerda e o que está mais a direita
+	enemy* leftmost_enemy = enemies[0];
+	enemy* rightmost_enemy = enemies[0];
+	if(animation_counter % animation_delay == 0){
+	for(int i = 1; i < n_enemies; i++){
+    if(enemies[i]->position_x < leftmost_enemy->position_x){
+        leftmost_enemy = enemies[i];
+    }
+    if(enemies[i]->position_x > rightmost_enemy->position_x){
+        rightmost_enemy = enemies[i];
+    }
+	}
+	if(leftmost_enemy->position_x <= 0 || rightmost_enemy->position_x >= max_x - 32){
 		for(int i = 0; i < n_enemies; i++){
+			// printf("tao na borda AAAAAAAAAA\n.");
 			enemies[i]->direction *= -1;
 			enemies[i]->position_x += speed * enemies[i]->direction;
-			al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x + max_x/4, enemies[i]->position_y, 16 * 2, 16 * 2, 0);	
+			enemies[i]->position_y += 4;
 		}
 	}else{
 		for(int i = 0; i < n_enemies; i++){
+			// printf("tao no meio\n.");
 			enemies[i]->position_x += speed * enemies[i]->direction;
-			al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x + max_x/4, enemies[i]->position_y, 16 * 2, 16 * 2, 0);		
 		}
 	}
-	//generate_enemies(enemies, n_enemies, sprite_sheet, max_x);
-    // for(int i = 0; i < n_enemies; i++){
-    //     if(enemies[i]->position_x <= 0 || enemies[i]->position_x >= max_x - 32){
-    //         enemies[i]->direction *= -1; // inverte a direção do movimento
-    //     }
-    //     enemies[i]->position_x += speed * enemies[i]->direction; // atualiza a posição x
-    //     al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x, enemies[i]->position_y, 16 * 2, 16 * 2, 0); // desenha o inimigo na tela
-//    }
+	
+	for (int i = 0; i < n_enemies; i++) {
+		if(animation_counter % (2 * animation_delay) < animation_delay){
+			al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x, enemies[i]->position_y, 16 * 2, 16 * 2, 0);
+		}else{
+			al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x + 16, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x, enemies[i]->position_y, 16 * 2, 16 * 2, 0);
+		}
+	}
+	}else{
+		for (int i = 0; i < n_enemies; i++) {
+			if(animation_counter % (2 * animation_delay) < animation_delay){
+					al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x, enemies[i]->position_y, 16 * 2, 16 * 2, 0);				
+			}else{
+				al_draw_scaled_bitmap(sprite_sheet, enemies[i]->sprite_x + 16, enemies[i]->sprite_y, 16, 16, enemies[i]->position_x, enemies[i]->position_y, 16 * 2, 16 * 2, 0);
+			}
+	}
+	}
+	animation_counter = (animation_counter + 1) % (2 * animation_delay);
 }
 int remove_enemy(space *board, int position_y, int position_x){
 //IMPLEMENTAR!
