@@ -23,19 +23,27 @@ typedef struct shot_sentinel{
 	shot *last;
 } shot_sentinel;
 
+typedef struct frames{
+	int x1;
+	int y1;
+	int x2;
+	int y2
+} frames;
+
 typedef struct enemy{
+	int alive;
 	int position_x;
 	int position_y;
-	int sprite_x;
-    int sprite_y;
+	frames sprite;
 	int direction;
+	int type;
 	pistol* gun;
 } enemy;
 
-enemy* create_enemy(int x, int y);
+enemy* create_enemy(int x, int y, int enemy_type);
 enemy** create_enemies(int n_enemies, int columns, int lines);
-void generate_enemies(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
+// void generate_enemies(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
 void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
-int remove_enemy(space *board, int position_y, int position_x);
+void remove_enemy(enemy** enemies, int n_enemies, enemy* enemy);
 
 #endif

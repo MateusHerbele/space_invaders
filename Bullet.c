@@ -27,7 +27,10 @@ int has_shot_column(bullet* elements, int column){															//Implementaç�
 	return 0;
 }
 
-void bullet_destroy(bullet *element){																		//Implementação da função "bullet_destroy"
-
-	free(element);																							//Libera a memória da instância de projétil
+void bullet_destroy(bullet *element) {
+    while (element != NULL) {
+        bullet *next = (bullet *)element->next;
+        free(element);
+        element = next;
+    }
 }

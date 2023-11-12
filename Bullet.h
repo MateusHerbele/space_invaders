@@ -14,6 +14,6 @@ typedef struct {																																//Definição da estrutura de um
 bullet* bullet_create(unsigned short x, unsigned short y, char trajectory, bullet *next);												//Protótipo da função de criação de uma bala (!)
 void bullet_move(bullet *elements);			
 int has_shot_column(bullet* elements, int column);																									//Protótipo da função de movimentação de uma bala (!)	
-void bullet_destroy(bullet *element);																											//Protótipo da função de destruição de uma bala (!)
+void bullet_destroy(bullet* element);																											//Protótipo da função de destruição de uma bala (!)
 
 #endif																																			//Guardas de inclusão (!)
