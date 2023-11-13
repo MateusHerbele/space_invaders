@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "Bullet.h"
+#include <stdio.h>
 
 bullet* bullet_create(unsigned short x, unsigned short y, char trajectory, bullet *next){			//Implementação da função "bullet_create"
 	if ((trajectory < -1) || (trajectory > 1)) return NULL;
@@ -29,6 +30,7 @@ int has_shot_column(bullet* elements, int column){															//Implementaç�
 
 void bullet_destroy(bullet *element) {
     while (element != NULL) {
+		printf("bullet_destroy: x: %u, y: %u.\n", element->x, element->y);
         bullet *next = (bullet *)element->next;
         free(element);
         element = next;

@@ -3,10 +3,11 @@
 
 #include "Bullet.h"
 
-#define PISTOL_COOLDOWN 30																										//Tamanho, em frames, do tempo entre um tiro e outro (!)
+#define PISTOL_COOLDOWN 30								
+#define ENEMY_SHOT_COOLDOWN 100																		//Tamanho, em frames, do tempo entre um tiro e outro (!)
 
 typedef struct {																												//Definição da estrutura de uma pistola (!)
-	unsigned char timer;																										//Relógio de intervalo entre tiros (!)
+	int timer;																										//Relógio de intervalo entre tiros (!)
 	bullet *shots;																												//Lista de balas ativas no campo disparadas pelas arma	 (!)
 } pistol;																														//Definição do nome da estrutura (!)
 

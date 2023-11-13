@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "enemy.h": "c"
+        "enemy.h": "c",
+        "obstacle.h": "c"
     }
 }

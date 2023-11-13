@@ -55,16 +55,16 @@ enemy** create_enemies(int n_enemies, int columns, int lines){
     int y = 0;
     int index = 0;
     for(int i = 0; i < n_enemies; i++){
-		if(y < 40 * 2)
+		if(y < 48 * 2)
         	enemies[index] = create_enemy(x, y, 2);
-		else if(y < 40 * 4)
+		else if(y < 48 * 4)
 			enemies[index] = create_enemy(x, y, 1);
 		else
 			enemies[index] = create_enemy(x, y, 0);
         index++;
-        y += 40;
+        y += 48;
         if(index % columns == 0){
-            x += 40;
+            x += 48;
             y = 0;
         }
     }
@@ -125,6 +125,12 @@ void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* spr
 	}
 	}
 	animation_counter = (animation_counter + 1) % (2 * animation_delay);
+}
+
+void enemy_shot(enemy *enemy){
+    bullet* shot;
+    shot = pistol_shot(enemy->position_x, enemy->position_y - 16, 1, enemy->gun);										//Quadrado atira para a esquerda (!)
+	enemy->gun->shots = shot;
 }
 
 void remove_enemy(enemy** enemies, int n_enemies, enemy* enemy){

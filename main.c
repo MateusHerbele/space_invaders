@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 
 #include <allegro5/allegro5.h>																																												//Biblioteca base do Allegro
 #include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
@@ -15,34 +16,55 @@
 #include "Joystick.h"
 #include "Pistol.h"
 #include "Bullet.h"
+#include "obstacle.h"
 
 #define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
 #define Y_SCREEN 640		
 
-void update_bullets(player *player){																																										//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
+void update_bullets(player *player, enemy** enemies, int n_enemies){																																										//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
 	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
-	for (bullet *index = player->gun->shots; index != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
-		index->y -= BULLET_MOVE;																																											//Atualiza a posição do projétil (!)
-		if ((index->y < 0) || (index->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
+	for (bullet *index_player = player->gun->shots; index_player != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
+		index_player->y -= BULLET_MOVE;																																											//Atualiza a posição do projétil (!)
+		if ((index_player->y < 0) || (index_player->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
 			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
-				previous->next = index->next;																																								//Se não for, salva o próximo projétil (!)
-				bullet_destroy(index);																																										//Chama o destrutor para o projétil atual (!)
-				index = (bullet*) previous->next;																																							//Atualiza para o próximo projétil (!)
+				previous->next = index_player->next;																																								//Se não for, salva o próximo projétil (!)
+				//bullet_destroy(index_player);																																										//Chama o destrutor para o projétil atual (!)
+				index_player = (bullet*) previous->next;																																							//Atualiza para o próximo projétil (!)
 			}
 			else {																																															//Se for o primeiro projétil da lista (!)
-				player->gun->shots = (bullet*) index->next;																																					//Atualiza o projétil no início da lista (!)
-				bullet_destroy(index);																																										//Chama o destrutor para o projétil atual (!)
-				index = player->gun->shots;																																									//Atualiza para o próximo projétil (!)
+				player->gun->shots = (bullet*) index_player->next;																																					//Atualiza o projétil no início da lista (!)
+				//bullet_destroy(index_player);																																										//Chama o destrutor para o projétil atual (!)
+				index_player = player->gun->shots;																																									//Atualiza para o próximo projétil (!)
 			}
 		}
 		else{																																																//Se não saiu da tela (!)
-			previous = index;																																												//Atualiza o projétil anterior (para a próxima iteração) (!)
-			index = (bullet*) index->next;																																									//Atualiza para o próximo projétil (!)
+			previous = index_player;																																												//Atualiza o projétil anterior (para a próxima iteração) (!)
+			index_player = (bullet*) index_player->next;																																									//Atualiza para o próximo projétil (!)
+		}
+	}
+
+	previous = NULL;
+	for(int i = 0; i < n_enemies; i++){
+		for(bullet* index_enemies = enemies[i]->gun->shots; index_enemies != NULL;){
+			index_enemies->y += BULLET_MOVE;
+			if(index_enemies->y < 0 || index_enemies->y > Y_SCREEN){
+				if(previous){
+					previous->next = index_enemies->next;
+					index_enemies = (bullet*) previous->next;
+				}else{
+					enemies[i]->gun->shots = (bullet*) index_enemies->next;
+					index_enemies = enemies[i]->gun->shots;
+				}
+			}
+			else{
+				previous = index_enemies;
+				index_enemies = (bullet*) index_enemies->next;
+			}
 		}
 	}
 }
 // update position
-void update_position(player *player){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
+void update_position(player *player, enemy** enemies, int n_enemies){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
 		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
@@ -67,7 +89,7 @@ void update_position(player *player){																																					//Fun�
 			player->gun->timer = PISTOL_COOLDOWN;																																							//Inicia o cooldown da arma (!)
 		} 
 	}
-	update_bullets(player);			
+	update_bullets(player, enemies, n_enemies);			
 																																									//Atualiza os disparos do primeiro jogador (!)
 }
 
@@ -87,18 +109,71 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){
 	}
 }
 
-void check_collision(player *player, enemy **enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet){
+// void check_collision(player *player, enemy **enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet) {
+//     // player bullets
+//     if (player->gun->shots == NULL) return;
+
+//     bullet *current_bullet = player->gun->shots;
+//     bullet *previous_bullet = NULL;
+
+//     while (current_bullet != NULL) {
+//         int hit = 0;
+
+//         for (int i = 0; i < n_enemies; i++) {
+//             if (enemies[i]->alive &&
+//                 current_bullet->x >= enemies[i]->position_x - 16 &&
+//                 current_bullet->x <= enemies[i]->position_x + 16 &&
+//                 current_bullet->y >= enemies[i]->position_y - 16 &&
+//                 current_bullet->y <= enemies[i]->position_y + 16) {
+//                 enemies[i]->alive = 0;
+//                 explosion_animation(enemies[i]->position_x, enemies[i]->position_y, sprite_sheet);
+//                 hit = 1;
+//                 break;
+//             }
+//         }
+
+//         if (hit) {
+//             bullet *temp = current_bullet;
+//             current_bullet = current_bullet->next;
+
+//             if (previous_bullet) {
+//                 previous_bullet->next = current_bullet;
+//             } else {
+//                 player->gun->shots = current_bullet;
+//             }
+
+//             bullet_destroy(temp);
+//         } else {
+//             previous_bullet = current_bullet;
+//             current_bullet = current_bullet->next;
+//         }
+//     }
+// }
+
+
+void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** obstacles, int n_obstacles, ALLEGRO_BITMAP* sprite_sheet){
 	// player bullets
 	if(player->gun->shots == NULL) return;
 	for(bullet* index = player->gun->shots; index != NULL; index = (bullet*) index->next){
 		for(int i = 0; i < n_enemies; i++){
 			if(enemies[i]->alive){
-				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 16){
+				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 48){
 					if(index->y >= enemies[i]->position_y - 16 && index->y <= enemies[i]->position_y + 16){
 						enemies[i]->alive = 0;
 						explosion_animation(enemies[i]->position_x, enemies[i]->position_y, sprite_sheet);
 						index->y = -1;
-						index->x = -1;
+						break;
+					}
+				}
+			}
+		}
+		// obstacles
+		for(int i = 0; i < n_obstacles; i++){
+			if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
+				if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
+					if(obstacles[i]->lifes > 0){
+						obstacles[i]->lifes--;
+						index->y = -1;
 						break;
 					}
 				}
@@ -107,10 +182,88 @@ void check_collision(player *player, enemy **enemies, int n_enemies, ALLEGRO_BIT
 	}
 	// enemy bullets
 }
+int two_points_distance(int x1, int x2, int y1, int y2){
+	int x_difference = 0;
+	int y_difference = 0;
+	if(x1 > x2)
+		x_difference = x1 - x2;
+	else
+		x_difference = x2 - x1;
+
+	if(y1 > y2)
+		y_difference = y1 - y2;
+	else
+		y_difference = y2 - y1;
+
+	return sqrt((x_difference * x_difference) + (y_difference * y_difference));
+}
+
+void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y){
+	// preciso analisar os inimigos mais próximos do player
+	// e fazer com que eles atirem
+	static int shot_delay_0 = 0;
+	static int shot_delay_1 = 0;
+	static int shot_delay_2 = 0;
+	int actual_distance = 0;
+	int closest_distance_0 = 0;
+	int closest_distance_1 = 0;
+	int closest_distance_2 = 0;
+	enemy* closest_enemy_0 = enemies[0];
+	enemy* closest_enemy_1 = enemies[0];
+	enemy* closest_enemy_2 = enemies[0];
+
+	for(int i = 0; i < n_enemies; i++){
+		if(enemies[i]->alive){
+			switch(enemies[i]->type){
+				case 0:
+					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
+					if(actual_distance > closest_distance_0){
+						closest_distance_0 = actual_distance;
+						closest_enemy_0 = enemies[i];
+					}
+				break;
+				case 1:
+					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
+					if(actual_distance > closest_distance_1){
+						closest_distance_1 = actual_distance;
+						closest_enemy_1 = enemies[i];
+					}
+				break;
+				case 2:
+					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
+					if(actual_distance > closest_distance_2){
+						closest_distance_2 = actual_distance;
+						closest_enemy_2 = enemies[i];
+					}
+				break;
+			}
+		}
+	}
+	printf("closest enemy 0: %d\n", closest_distance_0);
+	printf("closest enemy 1: %d\n", closest_distance_1);
+	printf("closest enemy 2: %d\n", closest_distance_2);
+	if(!shot_delay_0){
+		enemy_shot(closest_enemy_0);
+		shot_delay_0 = ENEMY_SHOT_COOLDOWN;
+	}else shot_delay_0--;
+	if(!shot_delay_1){
+		enemy_shot(closest_enemy_1);
+		shot_delay_1 = ENEMY_SHOT_COOLDOWN;
+	}else shot_delay_1--;
+	if(!shot_delay_2){
+		enemy_shot(closest_enemy_2);
+		shot_delay_2 = ENEMY_SHOT_COOLDOWN;
+	}else shot_delay_2--;
+	
+
+}
+
 
 int main(int argc, char** argv){
 	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
 	enemy** enemies =  create_enemies(66, 6, 11);
+
+	obstacle** obstacles = create_obstacles(4, X_SCREEN, Y_SCREEN);
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
@@ -153,6 +306,7 @@ int main(int argc, char** argv){
 	int sprite_height = 16;
 	
 	int n_enemies = 66;
+	int n_obstacles = 4;
 
 	while(1){
 		// Laço principal do jogo
@@ -170,19 +324,36 @@ int main(int argc, char** argv){
 
 		}else{
 			if(event.type == ALLEGRO_EVENT_TIMER){
-				update_position(player);
+				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
 				//generate_enemies(enemies, n_enemies, sprite_sheet, X_SCREEN);		
+				generate_obstacles(obstacles, 4, sprite_sheet);
 				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN);
+				update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y);
 				// enemies_shot(enemies, n_enemies, sprite_sheet);
+				check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet); // checa se houve colisões
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
 					// printf("entrei aqui\n");
 					// index->y -= BULLET_MOVE;
 					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
 				}
+				for(int i = 0; i < n_enemies; i++){
+					if(enemies[i]->gun->timer) enemies[i]->gun->timer--;
+					for(bullet* index = enemies[i]->gun->shots; index != NULL; index = (bullet*) index->next)
+						switch(enemies[i]->type){
+							case 0:
+								al_draw_scaled_bitmap(sprite_sheet, 0, 32, sprite_width, sprite_height, index->x - 14, index->y - 16, sprite_width * 2, sprite_height * 2, 0);
+							break;
+							case 1:
+								al_draw_scaled_bitmap(sprite_sheet, 64, 32, sprite_width, sprite_height, index->x - 14, index->y - 16, sprite_width * 2, sprite_height * 2, 0);
+							break;
+							case 2:
+								al_draw_scaled_bitmap(sprite_sheet, 16, 48, sprite_width, sprite_height, index->x - 14, index->y - 16, sprite_width * 2, sprite_height * 2, 0);
+							break;
+						}
+				}
 				if(player->gun->timer) player->gun->timer--;
-				check_collision(player, enemies, n_enemies, sprite_sheet); // checa se houve colisões
 
 				al_flip_display();																																		
 			}else{
