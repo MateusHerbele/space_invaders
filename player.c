@@ -14,6 +14,7 @@ player* create_player(int x, int y){
     new_player->lifes = 3;
     new_player->sprite_x = 0;
     new_player->sprite_y = 0;    
+    new_player->score = 0;
     new_player->gun = pistol_create();
     new_player->control = joystick_create();
     return new_player;

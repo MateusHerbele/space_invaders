@@ -11,7 +11,8 @@ typedef struct player{
 	int position_y;
     short unsigned int lifes;
     int sprite_x;
-    int sprite_y; 
+    int sprite_y;
+    int score; 
     // unsignet int power_ups;
     // unsigned int power_ups_time;
     joystick* control;

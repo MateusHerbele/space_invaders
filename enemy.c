@@ -129,7 +129,7 @@ void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* spr
 
 void enemy_shot(enemy *enemy){
     bullet* shot;
-    shot = pistol_shot(enemy->position_x, enemy->position_y - 16, 1, enemy->gun);										//Quadrado atira para a esquerda (!)
+    shot = pistol_shot(enemy->position_x, enemy->position_y + 16, 1, enemy->gun);										//Quadrado atira para a esquerda (!)
 	enemy->gun->shots = shot;
 }
 
