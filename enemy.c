@@ -52,12 +52,12 @@ enemy** create_enemies(int n_enemies, int columns, int lines){
         exit(1);
     }
     int x = 0;
-    int y = 0;
+    int y = 100;
     int index = 0;
     for(int i = 0; i < n_enemies; i++){
-		if(y < 48 * 2)
+		if(y < 48 * 2 + 100)
         	enemies[index] = create_enemy(x, y, 2);
-		else if(y < 48 * 4)
+		else if(y < 48 * 4 + 100)
 			enemies[index] = create_enemy(x, y, 1);
 		else
 			enemies[index] = create_enemy(x, y, 0);
@@ -65,7 +65,7 @@ enemy** create_enemies(int n_enemies, int columns, int lines){
         y += 48;
         if(index % columns == 0){
             x += 48;
-            y = 0;
+            y = 100;
         }
     }
     return enemies;
