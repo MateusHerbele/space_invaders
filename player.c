@@ -11,7 +11,8 @@ player* create_player(int x, int y){
     }
     new_player->position_x = x;
     new_player->position_y = y;
-    new_player->lifes = 3;
+    new_player->lives = 3;
+    new_player->max_lives = 3;
     new_player->sprite_x = 0;
     new_player->sprite_y = 0;    
     new_player->score = 0;

@@ -9,7 +9,8 @@
 #include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
 #include <allegro5/allegro_primitives.h>	
 #include <allegro5/allegro_image.h>
-#include <allegro5/timer.h>																																											//Biblioteca de primitivas do Allegro
+#include <allegro5/timer.h>				
+// #include <allegro5/allegro_ttf.h>																																							//Biblioteca de primitivas do Allegro
 
 #include "enemy.h"
 #include "player.h"
@@ -197,7 +198,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 	for(bullet* index = player->gun->shots; index != NULL; index = (bullet*) index->next){
 		for(int i = 0; i < n_enemies; i++){
 			if(enemies[i]->alive){
-				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 48){
+				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 16){
 					if(index->y >= enemies[i]->position_y - 16 && index->y <= enemies[i]->position_y + 16){
 						enemies[i]->alive = 0;
 						explosion_animation(enemies[i]->position_x - 10, enemies[i]->position_y - 10, sprite_sheet);
@@ -214,9 +215,9 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 		for(int i = 0; i < n_obstacles; i++){
 			if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
 				if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
-					if(obstacles[i]->lifes > 0){
+					if(obstacles[i]->lives > 0){
 						printf("passei por aqui\n");
-						obstacles[i]->lifes--;
+						obstacles[i]->lives--;
 						// bullet_destroy(index);
 						index->y = -1;
 						break;
@@ -232,8 +233,8 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			if(index->x >= player->position_x - 16 && index->x <= player->position_x + 16){
 				if(index->y >= player->position_y - 16 && index->y <= player->position_y + 16){
 					printf("entrei aqui2\n");
-					explosion_animation(player->position_x - 20, player->position_y -20, sprite_sheet);
-					player->lifes--;
+					explosion_animation(player->position_x - 20, player->position_y - 20, sprite_sheet);
+					player->lives--;
 					index->x = -1;
 					// bullet_destroy(index);
 					break;
@@ -242,17 +243,17 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			for(int i = 0; i < n_obstacles; i++){
 				if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
 					if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
-						if(obstacles[i]->lifes > 0){
+						if(obstacles[i]->lives > 0){
 							printf("entrei aqui\n");
 							switch(enemies[i]->type){
 								case 0: 
-									obstacles[i]->lifes--;
+									obstacles[i]->lives--;
 								break;
 								case 1:
-									obstacles[i]->lifes -= 2;
+									obstacles[i]->lives -= 2;
 								break;
 								case 2:
-									obstacles[i]->lifes -= 3;
+									obstacles[i]->lives -= 3;
 								break;
 							}
 							index->x = -1;
@@ -264,12 +265,24 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			}	
 		}
 	}
+	// colision between enemy shots && player shots
+	for(int i = 0; i < n_enemies; i++){
+		if(enemies[i]->gun->shots == NULL) continue;
+			for(bullet* enemy_index = enemies[i]->gun->shots; enemy_index != NULL; enemy_index = (bullet*) enemy_index->next){
+				for(bullet* player_index = player->gun->shots; player_index != NULL; player_index = (bullet*) player_index->next){
+					if(enemy_index->x >= player_index->x - 16 && enemy_index->x <= player_index->x + 16){
+						if(enemy_index->y >= player_index->y - 16 && enemy_index->y <= player_index->y + 16){
+							explosion_animation(enemy_index->x - 16, enemy_index->y - 10, sprite_sheet);
+							enemy_index->x = -1;
+							player_index->y = -1;
+							break;
+						}
+					}
+				}
+			}
+	}
 
-	// enemy bullets
-// 	for(int i = 0; i < n_enemies; i++){
-		
-// 	}
-// }
+	
 }
 int two_points_distance(int x1, int x2, int y1, int y2){
 	int x_difference = 0;
@@ -328,9 +341,6 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 			}
 		}
 	}
-	// printf("closest enemy 0: %d\n", closest_distance_0);
-	// printf("closest enemy 1: %d\n", closest_distance_1);
-	// printf("closest enemy 2: %d\n", closest_distance_2);
 	if(!shot_delay_0){
 		enemy_shot(closest_enemy_0);
 		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20;
@@ -403,6 +413,12 @@ int main(int argc, char** argv){
 	}
 	al_set_display_icon(disp, icon);
 	
+	// if (!al_init_ttf_addon()) {
+    // fprintf(stderr, "Erro ao inicializar o addon TrueType do Allegro.\n");
+    // return -1;
+	// }
+
+	font = al_load_font("fonts/PressStart2P.ttf", 16, 0);
 	int sprite_width = 16;
 	int sprite_height = 16;
 	
@@ -420,25 +436,23 @@ int main(int argc, char** argv){
 		if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
 			break;
 		}
-		if(player->lifes == 0){
+		if(player->lives == 0){
 			// mudar pra tela de restart
+			generate_hud(hud, player, sprite_sheet, font);
 			explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
+			al_flip_display();
 			break;
 		}else{
 			if(event.type == ALLEGRO_EVENT_TIMER){
 				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
-				generate_hud(hud, player->lifes, sprite_sheet);
+				generate_hud(hud, player, sprite_sheet, font);
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
-				//generate_enemies(enemies, n_enemies, sprite_sheet, X_SCREEN);		
 				generate_obstacles(obstacles, 4, sprite_sheet);
 				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN);
 				update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y);
-				// enemies_shot(enemies, n_enemies, sprite_sheet);
 				check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet); // checa se houve colisões
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
-					// printf("entrei aqui\n");
-					// index->y -= BULLET_MOVE;
 					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
 				}
 				for(int i = 0; i < n_enemies; i++){
@@ -457,9 +471,6 @@ int main(int argc, char** argv){
 						}
 				}
 				if(player->gun->timer) player->gun->timer--;
-				// clean_shots(player->gun);
-				// for(int i = 0; i < n_enemies; i++)
-				// 	clean_shots(enemies[i]->gun);
 
 				al_flip_display();																																		
 			}else{

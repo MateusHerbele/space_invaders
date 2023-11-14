@@ -6,7 +6,7 @@ obstacle* obstacle_create(int x, int y){
         fprintf(stderr, "ERRO: não foi possível alocar memória para o obstáculo!\n");
         exit(1);
     }
-    new_obstacle->lifes = 10;
+    new_obstacle->lives = 10;
     new_obstacle->position_x = x;
     new_obstacle->position_y = y;
     return new_obstacle;
@@ -35,7 +35,7 @@ obstacle** create_obstacles(int n_obstacles, int max_x, int max_y){
 void generate_obstacles(obstacle** array, int n_obstacles, ALLEGRO_BITMAP* sprite_sheet){
     for(int i = 0; i < n_obstacles; i++){
         // al_draw_bitmap_region(sprite_sheet, 0, 0, 16, 16, array[i]->position_x, array[i]->position_y, 0);
-        switch(array[i]->lifes){
+        switch(array[i]->lives){
             case 10:
                 al_draw_scaled_bitmap(sprite_sheet, 0, 96, 16, 16, array[i]->position_x, array[i]->position_y, 16 * 4, 16 * 2, 0);
             break;

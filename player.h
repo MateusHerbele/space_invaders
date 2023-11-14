@@ -9,12 +9,11 @@
 typedef struct player{
 	int position_x;
 	int position_y;
-    short unsigned int lifes;
+    short unsigned lives;
+    short unsigned max_lives;
     int sprite_x;
     int sprite_y;
     int score; 
-    // unsignet int power_ups;
-    // unsigned int power_ups_time;
     joystick* control;
     pistol* gun;
 } player;

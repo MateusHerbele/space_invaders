@@ -7,24 +7,37 @@ hud* create_hud(){
         fprintf(stderr, "ERRO: não foi possível alocar memória para o hud!\n");
         exit(1);
     }
-    new_hud->position_x_lifes = 0;
-    new_hud->position_y_lifes = 0;
+    new_hud->position_x_lives = 0;
+    new_hud->position_y_lives = 0;
     new_hud->position_x_score = 0;
     new_hud->position_y_score = 0;
-    new_hud->width_lifes = 0;
-    new_hud->height_lifes = 0;
+    new_hud->width_lives = 0;
+    new_hud->height_lives = 0;
     return new_hud;
 }
 
-void generate_hud(hud* hud, unsigned short player_lifes, ALLEGRO_BITMAP* sprite_sheet){
-   unsigned short lost_lifes = 3 - player_lifes;
+void generate_hud(hud* hud, player* player, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font){
+   unsigned short lost_lives = player->max_lives - player->lives;
    int i = 0;
-   
-   for(i = 0; i < player_lifes; i++){
-        al_draw_scaled_bitmap(sprite_sheet, 80, 48, 16, 16, hud->position_x_lifes + (40*i), hud->position_y_lifes, 16 * 2, 16 * 2, 0);
-        printf("que haja coracoes\n");    
-   }
-   printf("lost lifes: %d\n", lost_lifes);
-   for(int j = 1; j < lost_lifes; j++)
-        al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lifes + (40*(i+j)), hud->position_y_lifes, 16 * 2, 16 * 2, 0);
+   // full hearts
+   for(i = 0; i < player->lives; i++)
+        al_draw_scaled_bitmap(sprite_sheet, 80, 48, 16, 16, hud->position_x_lives + (40*i), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+   // empty hearts
+   for(int j = 1; j <= lost_lives; j++)
+        switch(lost_lives){
+            case 1:
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*2), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+            break;
+            case 2:
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*2), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*1), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+            break;
+            case 3:
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*2), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*1), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+                al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*0), hud->position_y_lives, 16 * 2, 16 * 2, 0);
+            break;
+        }
+    // score
+    // al_draw_text(font, al_map_rgb(0, 0, 0), 100, 100, 0, "Score:");
 }

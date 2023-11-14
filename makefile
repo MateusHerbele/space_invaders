@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -o -g -Wall
 PKG_CONFIG = pkg-config
-ALLEGRO_MODULES = allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5
+ALLEGRO_MODULES = allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 allegro_image-5 allegro_ttf-5
 LIBS = $(shell $(PKG_CONFIG) --libs $(ALLEGRO_MODULES)) -lm  # Adiciona -lm para incluir a biblioteca math.h
 CFLAGS += $(shell $(PKG_CONFIG) --cflags $(ALLEGRO_MODULES))
 
