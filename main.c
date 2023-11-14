@@ -351,7 +351,17 @@ int main(int argc, char** argv){
 
 	al_register_event_source(queue, al_get_keyboard_event_source());																																		//Indica que eventos de teclado serão inseridos na nossa fila de eventos
 	al_register_event_source(queue, al_get_display_event_source(disp));																																		//Indica que eventos de tela serão inseridos na nossa fila de eventos
-	al_register_event_source(queue, al_get_timer_event_source(timer));																																		//Indica que eventos de relógio serão inseridos na nossa fila de eventos
+	al_register_event_source(queue, al_get_timer_event_source(timer));			
+	
+	// Obtenha as dimensões da tela
+    int screen_width = al_get_display_width(al_get_current_display());
+    int screen_height = al_get_display_height(al_get_current_display());
+
+    // Calcule a posição inicial para centralizar a janela
+    int window_x = (screen_width)/2 + X_SCREEN/4;
+    int window_y = (screen_height)/2 - Y_SCREEN;	
+
+	al_set_window_position(disp, window_x, window_y);																											//Indica que eventos de relógio serão inseridos na nossa fila de eventos
 
 	ALLEGRO_EVENT event;																																												//Cria uma variável para armazenar o evento atual
 	al_start_timer(timer);																																//Cria uma janela para o programa, define a largura (x) e a altura (y) da tela em píxeis (320x320, neste caso)
