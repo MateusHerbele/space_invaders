@@ -12,7 +12,7 @@
 typedef struct {
     unsigned short position_x;
     unsigned short position_y;
-    unsigned short lifes;
+    short lifes;
 } obstacle;
 
 obstacle* obstacle_create(int x, int y);

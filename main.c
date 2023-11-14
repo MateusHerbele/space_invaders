@@ -17,6 +17,7 @@
 #include "Pistol.h"
 #include "Bullet.h"
 #include "obstacle.h"
+#include "hud.h"
 
 #define X_SCREEN 640																																														//Definição do tamanho da tela em pixels no eixo x
 #define Y_SCREEN 800		
@@ -102,7 +103,7 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){
 	int sprite_y = 64;
 	
 	for(int i = 0; i < 11; i++){
-		al_draw_scaled_bitmap(sprite_sheet, sprite_x, sprite_y, sprite_width, sprite_height, x , y , sprite_width * 2, sprite_height * 2, 0);		
+		al_draw_scaled_bitmap(sprite_sheet, sprite_x, sprite_y, sprite_width, sprite_height, x , y , sprite_width * 3, sprite_height * 3, 0);		
 		sprite_x += 16;
 		if(i == 4){
 			sprite_x = 0;
@@ -171,6 +172,7 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){
 // }
 
 void player_score(int* score, int enemy_type){
+	int extra_multiplyer = 1;
 	switch(enemy_type){
 		case 0:
 			*score += 10;
@@ -183,6 +185,8 @@ void player_score(int* score, int enemy_type){
 		break;
 		case 3:
 			*score += 100;
+			if(extra_multiplyer < 3)
+				extra_multiplyer += 1;
 		break;
 	}
 }
@@ -196,7 +200,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 48){
 					if(index->y >= enemies[i]->position_y - 16 && index->y <= enemies[i]->position_y + 16){
 						enemies[i]->alive = 0;
-						explosion_animation(enemies[i]->position_x, enemies[i]->position_y, sprite_sheet);
+						explosion_animation(enemies[i]->position_x - 10, enemies[i]->position_y - 10, sprite_sheet);
 						index->y = -1;
 						// bullet_destroy(index);
 						player_score(&player->score, enemies[i]->type);
@@ -211,6 +215,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
 				if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
 					if(obstacles[i]->lifes > 0){
+						printf("passei por aqui\n");
 						obstacles[i]->lifes--;
 						// bullet_destroy(index);
 						index->y = -1;
@@ -227,20 +232,30 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			if(index->x >= player->position_x - 16 && index->x <= player->position_x + 16){
 				if(index->y >= player->position_y - 16 && index->y <= player->position_y + 16){
 					printf("entrei aqui2\n");
-					explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
+					explosion_animation(player->position_x - 20, player->position_y -20, sprite_sheet);
 					player->lifes--;
-					index->y = -1;
+					index->x = -1;
 					// bullet_destroy(index);
 					break;
 				}
-			}
+			} // obstacles
 			for(int i = 0; i < n_obstacles; i++){
 				if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
 					if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
 						if(obstacles[i]->lifes > 0){
 							printf("entrei aqui\n");
-							obstacles[i]->lifes--;
-							index->y = -1;
+							switch(enemies[i]->type){
+								case 0: 
+									obstacles[i]->lifes--;
+								break;
+								case 1:
+									obstacles[i]->lifes -= 2;
+								break;
+								case 2:
+									obstacles[i]->lifes -= 3;
+								break;
+							}
+							index->x = -1;
 							// bullet_destroy(index);
 							break;
 						}
@@ -334,10 +349,12 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 
 
 int main(int argc, char** argv){
+	int n_enemies = 66;
+	int n_obstacles = 4;
 	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
-	enemy** enemies =  create_enemies(66, 6, 11);
-
-	obstacle** obstacles = create_obstacles(4, X_SCREEN, Y_SCREEN);
+	enemy** enemies =  create_enemies(n_enemies, 6, 11);
+	obstacle** obstacles = create_obstacles(n_obstacles, X_SCREEN, Y_SCREEN);
+	hud* hud = create_hud();
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
@@ -389,8 +406,7 @@ int main(int argc, char** argv){
 	int sprite_width = 16;
 	int sprite_height = 16;
 	
-	int n_enemies = 66;
-	int n_obstacles = 4;
+
 
 	while(1){
 		// Laço principal do jogo
@@ -412,6 +428,7 @@ int main(int argc, char** argv){
 			if(event.type == ALLEGRO_EVENT_TIMER){
 				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
+				generate_hud(hud, player->lifes, sprite_sheet);
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
 				//generate_enemies(enemies, n_enemies, sprite_sheet, X_SCREEN);		
 				generate_obstacles(obstacles, 4, sprite_sheet);
