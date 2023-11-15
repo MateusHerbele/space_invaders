@@ -377,7 +377,7 @@ int main(int argc, char** argv){
 	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();																																					//Cria a fila de eventos; todos os eventos (programação orientada a eventos) 
 	// ALLEGRO_FONT* font = al_create_builtin_font();		
-	ALLEGRO_FONT* font = al_load_font("fonts/pixel_invaders.ttf", 24, 0);																																					//Carrega uma fonte padrão para escrever na tela (é bitmap, mas também suporta adicionar fontes ttf)
+	ALLEGRO_FONT* font = al_load_font("fonts/pixel-invaders.ttf", 24, 0);																																					//Carrega uma fonte padrão para escrever na tela (é bitmap, mas também suporta adicionar fontes ttf)
 	ALLEGRO_DISPLAY* disp = al_create_display(X_SCREEN, Y_SCREEN);			
 
 	al_register_event_source(queue, al_get_keyboard_event_source());																																		//Indica que eventos de teclado serão inseridos na nossa fila de eventos
