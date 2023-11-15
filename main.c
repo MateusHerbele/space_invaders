@@ -370,7 +370,7 @@ int main(int argc, char** argv){
 	// al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
 	al_install_keyboard();																																													//Habilita a entrada via teclado (eventos de teclado), no programa
-
+	al_init_font_addon();
 	al_init_ttf_addon();
 
 
