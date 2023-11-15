@@ -367,7 +367,7 @@ int main(int argc, char** argv){
 	hud* hud = create_hud();
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
-	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
+	// al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
 	al_install_keyboard();																																													//Habilita a entrada via teclado (eventos de teclado), no programa
 
@@ -377,7 +377,6 @@ int main(int argc, char** argv){
 	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();																																					//Cria a fila de eventos; todos os eventos (programação orientada a eventos) 
 	// ALLEGRO_FONT* font = al_create_builtin_font();		
-	ALLEGRO_FONT* font = al_load_font("fonts/pixel-invaders.ttf", 24, 0);																																					//Carrega uma fonte padrão para escrever na tela (é bitmap, mas também suporta adicionar fontes ttf)
 	ALLEGRO_DISPLAY* disp = al_create_display(X_SCREEN, Y_SCREEN);			
 
 	al_register_event_source(queue, al_get_keyboard_event_source());																																		//Indica que eventos de teclado serão inseridos na nossa fila de eventos
@@ -416,6 +415,12 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 	al_set_display_icon(disp, icon);
+	ALLEGRO_FONT* font = al_load_font("fonts/Arcade.ttf", 32, 0);
+	if(!font){
+		fprintf(stderr, "Falha ao carregar fonte!\n");
+		exit(1);
+	}
+
 	
 
 	// font = al_load_font("fonts/PressStart2P.ttf", 16, 0);

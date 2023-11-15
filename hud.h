@@ -5,7 +5,8 @@
 
 #include <allegro5/allegro5.h>																																												//Biblioteca base do Allegro
 #include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
+#include <allegro5/allegro_font.h>		
+#include <allegro5/allegro_primitives.h>																																										//Biblioteca de fontes do Allegro
 
 #include "player.h"
 

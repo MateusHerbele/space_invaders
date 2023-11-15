@@ -39,5 +39,8 @@ void generate_hud(hud* hud, player* player, ALLEGRO_BITMAP* sprite_sheet, ALLEGR
             break;
         }
     al_draw_text(font, al_map_rgb(255, 255, 255), 640 - 100, 10, 0, "SCORE:");	
-    al_draw_textf(font, al_map_rgb(255, 255, 255), 640 - 100, 30, 0, "%d", player->score);
+    // al_draw_textf(font, al_map_rgb(255, 255, 255), 640 - 100, 30, 0, "%d", player->score);
+
+    // linha de divisão
+    al_draw_line(0, 80, 640, 80, al_map_rgb(255, 255, 255), 5);
 }
