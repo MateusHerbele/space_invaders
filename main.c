@@ -447,6 +447,7 @@ int main(int argc, char** argv){
 				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
 				generate_hud(hud, player, sprite_sheet, font);
+    			// textprintf_ex(disp, font, 16, 16, makecol(0,0,255), -1, "SCORE:");
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
 				generate_obstacles(obstacles, 4, sprite_sheet);
 				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN);
