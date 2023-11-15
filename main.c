@@ -418,7 +418,7 @@ int main(int argc, char** argv){
     // return -1;
 	// }
 
-	font = al_load_font("fonts/PressStart2P.ttf", 16, 0);
+	// font = al_load_font("fonts/PressStart2P.ttf", 16, 0);
 	int sprite_width = 16;
 	int sprite_height = 16;
 	

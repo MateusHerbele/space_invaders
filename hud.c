@@ -38,6 +38,6 @@ void generate_hud(hud* hud, player* player, ALLEGRO_BITMAP* sprite_sheet, ALLEGR
                 al_draw_scaled_bitmap(sprite_sheet, 96, 48, 16, 16, hud->position_x_lives + (40*0), hud->position_y_lives, 16 * 2, 16 * 2, 0);
             break;
         }
-    // al_draw_text(font, al_map_rgb(255, 255, 255), 640 - 100, 0, 0, "SCORE:");	
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640 - 100, 10, 0, "SCORE:");	
 
 }
