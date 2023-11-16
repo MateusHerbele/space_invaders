@@ -43,8 +43,10 @@ typedef struct enemy{
 enemy* create_enemy(int x, int y, int enemy_type);
 enemy** create_enemies(int n_enemies, int columns, int lines);
 // void generate_enemies(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
-void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
+void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x, int round);
 void enemy_shot(enemy *enemy);
+int enemies_alive(enemy** enemies, int n_enemies);
+void free_enemies(enemy** enemies, int n_enemies);
 void remove_enemy(enemy** enemies, int n_enemies, enemy* enemy);
 
 #endif

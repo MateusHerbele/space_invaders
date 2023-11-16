@@ -47,16 +47,22 @@ void update_bullets(player *player, enemy** enemies, int n_enemies){												
 
 	previous = NULL;
 	for(int i = 0; i < n_enemies; i++){
+		printf("teste lopp entrei \n");
+		if(enemies[i]->gun->shots == NULL) continue;
 		for(bullet* index_enemies = enemies[i]->gun->shots; index_enemies != NULL;){
 			index_enemies->y += BULLET_MOVE;
-			if((index_enemies->y < 0) || (index_enemies->y > Y_SCREEN)){
+			if(((index_enemies->y < 0) || (index_enemies->y > Y_SCREEN)) || (index_enemies->x < 0)){
 				if(previous){
+					printf("teste1\n");
 					previous->next = index_enemies->next;
-					// bullet_destroy(index_enemies);
+					printf("teste2\n");
+					bullet_destroy(index_enemies);
+					printf("teste3\n");
 					index_enemies = (bullet*) previous->next;
+					printf("teste4\n");
 				}else{
 					enemies[i]->gun->shots = (bullet*) index_enemies->next;
-					// bullet_destroy(index_enemies);
+					bullet_destroy(index_enemies);
 					index_enemies = enemies[i]->gun->shots;
 				}
 			}
@@ -300,7 +306,7 @@ int two_points_distance(int x1, int x2, int y1, int y2){
 	return sqrt((x_difference * x_difference) + (y_difference * y_difference));
 }
 
-void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y){
+void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, int round){
 	// preciso analisar os inimigos mais próximos do player
 	// e fazer com que eles atirem
 	static int shot_delay_0 = 0;
@@ -343,15 +349,15 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 	}
 	if(!shot_delay_0){
 		enemy_shot(closest_enemy_0);
-		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20;
+		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20 - (round/2);
 	}else shot_delay_0--;
 	if(!shot_delay_1){
 		enemy_shot(closest_enemy_1);
-		shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10;
+		shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2);
 	}else shot_delay_1--;
 	if(!shot_delay_2){
 		enemy_shot(closest_enemy_2);
-		shot_delay_2 = ENEMY_SHOT_COOLDOWN;
+		shot_delay_2 = ENEMY_SHOT_COOLDOWN -  (round/2);
 	}else shot_delay_2--;
 	
 
@@ -361,13 +367,14 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 int main(int argc, char** argv){
 	int n_enemies = 66;
 	int n_obstacles = 4;
+	int round = 0;
 	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
 	enemy** enemies =  create_enemies(n_enemies, 6, 11);
 	obstacle** obstacles = create_obstacles(n_obstacles, X_SCREEN, Y_SCREEN);
 	hud* hud = create_hud();
 	// Funcoes allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
-	// al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
+	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
 	al_install_keyboard();																																													//Habilita a entrada via teclado (eventos de teclado), no programa
 	al_init_font_addon();
@@ -443,7 +450,7 @@ int main(int argc, char** argv){
 		}
 		if(player->lives == 0){
 			// mudar pra tela de restart
-			generate_hud(hud, player, sprite_sheet, font);
+			generate_hud(hud, player, round, sprite_sheet, font);
 			explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
 			al_flip_display();
 			break;
@@ -451,12 +458,12 @@ int main(int argc, char** argv){
 			if(event.type == ALLEGRO_EVENT_TIMER){
 				update_position(player, enemies, n_enemies);
 				al_clear_to_color(al_map_rgb(0, 0, 0));		
-				generate_hud(hud, player, sprite_sheet, font);
+				generate_hud(hud, player, round, sprite_sheet, font);
     			// textprintf_ex(disp, font, 16, 16, makecol(0,0,255), -1, "SCORE:");
 				al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, sprite_width, sprite_height, player->position_x - 16, player->position_y - 16, sprite_width * 2, sprite_height * 2, 0);		
 				generate_obstacles(obstacles, 4, sprite_sheet);
-				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN);
-				update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y);
+				update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN, round);
+				update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y, round);
 				check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet); // checa se houve colisões
 				for (bullet *index = player->gun->shots; index != NULL; index = (bullet*) index->next) {
 					al_draw_scaled_bitmap(sprite_sheet, 64, 0, sprite_width, sprite_height, index->x - 14 , index->y - 16, sprite_width * 2, sprite_height * 2, 0);							
@@ -477,7 +484,18 @@ int main(int argc, char** argv){
 						}
 				}
 				if(player->gun->timer) player->gun->timer--;
-
+				if(!enemies_alive(enemies, n_enemies)){
+					// resetar o round e aumentar a velocidade dos inimigos e da frequência de tiro deles
+					free_enemies(enemies, n_enemies);
+					round += 8;
+					enemies = create_enemies(n_enemies, 6, 11);
+					if(player->lives == player->max_lives){
+						player->max_lives++;
+						player->lives++;
+					}else{
+						player->lives++;
+					}
+				}
 				al_flip_display();																																		
 			}else{
 				if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado

@@ -20,6 +20,5 @@ typedef struct {
 } hud;
 
 hud* create_hud();
-void generate_hud(hud* hud, player* player, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font);
-
+void generate_hud(hud* hud, player* player, int round, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font);
 #endif // __HUD__
