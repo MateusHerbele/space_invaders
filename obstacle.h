@@ -18,5 +18,6 @@ typedef struct {
 obstacle* obstacle_create(int x, int y);
 obstacle** create_obstacles(int n_obstacles, int max_x, int max_y);
 void generate_obstacles(obstacle** array, int n_obstacles, ALLEGRO_BITMAP* sprite_sheet);
+void restore_obstacles(obstacle** obstacle, int n_obstacles);
 
 #endif // __OBSTACLE__
