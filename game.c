@@ -4,7 +4,7 @@ void update_bullets(player *player, enemy** enemies, int n_enemies){	// game.c		
 	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
 	for (bullet *index_player = player->gun->shots; index_player != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
 		index_player->y -= BULLET_MOVE;																																											//Atualiza a posição do projétil (!)
-		if ((index_player->y < 0) || (index_player->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
+		if ((index_player->y < 80) || (index_player->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
 			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
 				previous->next = index_player->next;																																								//Se não for, salva o próximo projétil (!)
 				// bullet_destroy(index_player);																																										//Chama o destrutor para o projétil atual (!)
@@ -51,7 +51,7 @@ void update_bullets(player *player, enemy** enemies, int n_enemies){	// game.c		
 	}
 }
 // update position
-void update_position(player *player, enemy** enemies, int n_enemies){	 // game.c																																				//Função de atualização das posições dos quadrados conforme os comandos do controle
+void update_player_position(player *player, ALLEGRO_BITMAP* sprite_sheet){	 // game.c																																				//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
 		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
@@ -76,18 +76,15 @@ void update_position(player *player, enemy** enemies, int n_enemies){	 // game.c
 			player->gun->timer = PISTOL_COOLDOWN;																																							//Inicia o cooldown da arma (!)
 		} 
 	}
-	update_bullets(player, enemies, n_enemies);			// mudar pra essa chamada ser fora dessa função, ser em sequência
-																																									//Atualiza os disparos do primeiro jogador (!)
+	al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, 16, 16, player->position_x - 16, player->position_y - 16, 16 * 2, 16 * 2, 0);		
 }
 
 void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){ // game.c
-	int sprite_width = 16;
-	int sprite_height = 16;
 	int sprite_x = 32;
 	int sprite_y = 64;
 	
 	for(int i = 0; i < 11; i++){
-		al_draw_scaled_bitmap(sprite_sheet, sprite_x, sprite_y, sprite_width, sprite_height, x , y , sprite_width * 3, sprite_height * 3, 0);		
+		al_draw_scaled_bitmap(sprite_sheet, sprite_x, sprite_y, 16, 16, x , y , 16 * 3, 16 * 3, 0);		
 		sprite_x += 16;
 		if(i == 4){
 			sprite_x = 0;
@@ -282,11 +279,10 @@ int two_points_distance(int x1, int x2, int y1, int y2){ // game.c
 		y_difference = y2 - y1;
 
 	return sqrt((x_difference * x_difference) + (y_difference * y_difference));
+
 }
 
 void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, int round){ // game.c
-	// preciso analisar os inimigos mais próximos do player
-	// e fazer com que eles atirem
 	static int shot_delay_0 = 200;
 	static int shot_delay_1 = 0;
 	static int shot_delay_2 = 0;
@@ -337,6 +333,105 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 		enemy_shot(closest_enemy_2);
 		shot_delay_2 = ENEMY_SHOT_COOLDOWN -  (round/2);
 	}else shot_delay_2--;
-	
+}
+
+void draw_player_bullets(player* player, ALLEGRO_BITMAP* sprite_sheet){ // game.c
+	for(bullet* index = player->gun->shots; index != NULL; index = (bullet*) index->next)
+		al_draw_scaled_bitmap(sprite_sheet, 64, 0, 16, 16, index->x - 14, index->y - 16, 16 * 2, 16 * 2, 0);
+}
+
+void draw_enemies_bullets(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet){
+	for(int i = 0; i < n_enemies; i++){
+	if(enemies[i]->gun->timer) enemies[i]->gun->timer--;
+	for(bullet* index = enemies[i]->gun->shots; index != NULL; index = (bullet*) index->next)
+		switch(enemies[i]->type){
+			case 0:
+				al_draw_scaled_bitmap(sprite_sheet, 0, 32, 16, 16, index->x - 14, index->y - 16, 16 * 2, 16 * 2, 0);
+			break;
+			case 1:
+				al_draw_scaled_bitmap(sprite_sheet, 16, 48, 16, 16, index->x - 14, index->y - 16, 16 * 2, 16 * 2, 0);
+			break;
+			case 2:
+				al_draw_scaled_bitmap(sprite_sheet, 64, 32, 16, 16, index->x - 14, index->y - 16, 16 * 2, 16 * 2, 0);
+			break;
+		}
+	}
+}
+void menu_event(){
+	static menu_option startButton = {100, 200, 200, 50, "Começar Jogo", start_game_action};
+	static menu_option instructionsButton = {100, 300, 200, 50, "Instruções", instructions_action};
+	static menu_option quitButton = {100, 400, 200, 50, "Sair do Jogo", quit_game_action};
+
+}
+
+void game_event(short unsigned* running, int round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
+	// Laço principal do jogo
+	al_wait_for_event(queue, &event);
+	// Verifica se a tecla ESC está pressionada ou o botão de fechar a janela foi clicado
+	if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		*running = 0;
+	if(player->lives == 0){
+		generate_hud(hud, player, round, sprite_sheet, font);
+		explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
+		al_flip_display();
+		*running = 0;
+	}else{
+		if(event.type == ALLEGRO_EVENT_TIMER){
+			al_clear_to_color(al_map_rgb(0, 0, 0));		
+			update_player_position(player, sprite_sheet);
+			update_bullets(player, enemies, n_enemies);
+			generate_hud(hud, player, round, sprite_sheet, font);
+			generate_obstacles(obstacles, 4, sprite_sheet);
+			update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN, round);
+			update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y, round);
+			check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet); // checa se houve colisões
+			draw_player_bullets(player, sprite_sheet);
+			draw_enemies_bullets(enemies, n_enemies, sprite_sheet);
+			if(player->gun->timer) player->gun->timer--;
+			if(!enemies_alive(enemies, n_enemies)){
+				// resetar o round e aumentar a velocidade dos inimigos e da frequência de tiro deles
+				free_enemies(enemies, n_enemies);
+				restore_obstacles(obstacles, n_obstacles);
+				round += 8;
+				enemies = create_enemies(n_enemies, 6, 11);
+				if(player->lives == player->max_lives){
+					if(player->max_lives < 6){
+					player->max_lives++;
+					player->lives++;
+					}
+				}else{
+					player->lives++;
+				}
+			}
+			al_flip_display();																																		
+		}else{
+			if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado
+			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT){
+				joystick_left(player->control);
+				// player->sprite_x = 16;
+			} 																															//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
+			else if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT){
+				joystick_right(player->control);
+				// player->sprite_x = 16;
+			} 																													//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
+			else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE || event.keyboard.keycode == ALLEGRO_KEY_Z) joystick_fire(player->control);																														//Indica o evento correspondente no controle do primeiro joagdor (botão de disparo - c) (!)					
+			}
+		}
+	}
+}
+
+void generating_game(int program_event, int round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
+		unsigned short running = 1;
+		while(running){
+			switch(program_event){
+				case 0: // menu event
+				break;
+				case 1: // game event
+				game_event(&running, round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);
+				break;		
+				case 2: // game over event
+				break;
+			}	
+	}
 
 }

@@ -46,5 +46,5 @@ void generate_hud(hud* hud, player* player, int round, ALLEGRO_BITMAP* sprite_sh
     al_draw_textf(font, al_map_rgb(255, 255, 255), 640/2 - 100, 20, 0, "%d", round/8);
 
     // linha de divisão
-    al_draw_line(0, 80, 640, 80, al_map_rgb(255, 255, 255), 5);
+    al_draw_line(0, 70, 640, 70, al_map_rgb(255, 255, 255), 5);
 }
