@@ -357,10 +357,13 @@ void draw_enemies_bullets(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 		}
 	}
 }
-void menu_event(){
-	static menu_option startButton = {100, 200, 200, 50, "Começar Jogo", start_game_action};
-	static menu_option instructionsButton = {100, 300, 200, 50, "Instruções", instructions_action};
-	static menu_option quitButton = {100, 400, 200, 50, "Sair do Jogo", quit_game_action};
+void menu_event(unsigned short* running, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font){
+	static menu_option start_button = {(X_SCREEN/2) - 100, 300, 200, 50, "START GAME", true, start_game_action};
+	static menu_option instructions_button = {(X_SCREEN/2) - 100, 400, 200, 50, "INSTRUCTIONS", false, instructions_action};
+	static menu_option quit_button = {(X_SCREEN/2) - 100, 500, 200, 50, "QUIT GAME", false, quit_game_action};
+
+	menu_option* options[] = {&start_button, &instructions_button, &quit_button};
+	render_menu(event, queue, sprite_sheet, options, font, running);
 
 }
 
@@ -425,6 +428,7 @@ void generating_game(int program_event, int round, player* player, enemy** enemi
 		while(running){
 			switch(program_event){
 				case 0: // menu event
+				menu_event(&running, event, queue, sprite_sheet, font);
 				break;
 				case 1: // game event
 				game_event(&running, round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);

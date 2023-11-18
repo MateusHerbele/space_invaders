@@ -8,10 +8,10 @@
 #include <string.h>
 #include <math.h>
 
-#include <allegro5/allegro5.h>																																												//Biblioteca base do Allegro
-#include <allegro5/allegro_font.h>																																											//Biblioteca de fontes do Allegro
-#include <allegro5/allegro_ttf.h>																																							//Biblioteca de primitivas do Allegro
-#include <allegro5/allegro_primitives.h>	
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/timer.h>				
 

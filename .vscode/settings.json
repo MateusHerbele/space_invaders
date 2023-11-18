@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "enemy.h": "c",
-        "obstacle.h": "c"
+        "obstacle.h": "c",
+        "game.h": "c",
+        "allegro_font.h": "c",
+        "allegro5.h": "c"
     }
 }

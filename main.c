@@ -3,7 +3,7 @@
 int main(int argc, char** argv){
 	int n_enemies = 66;
 	int n_obstacles = 4;
-	int game_event = 1; // eh pra começar em 0, ta em 1 pra testes
+	int game_event = 0; // eh pra começar em 0, ta em 1 pra testes
 	int round = 0;
 
 	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
