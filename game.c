@@ -50,7 +50,7 @@ void update_bullets(player *player, enemy** enemies, int n_enemies){
 	}
 }
 // update position
-void update_player_position(player *player, ALLEGRO_BITMAP* sprite_sheet){	 // game.c																																				//Função de atualização das posições dos quadrados conforme os comandos do controle
+void update_player_position(player *player, ALLEGRO_BITMAP* sprite_sheet){																																					//Função de atualização das posições dos quadrados conforme os comandos do controle
 	if (player->control->left){																																											//Se o botão de movimentação para esquerda do controle do primeiro jogador está ativado...
 		player_move(player, -1, X_SCREEN);		
 		if(player->sprite_x < 48) player->sprite_x += 16;																																		//Move o quadrado do primeiro jogador para a esquerda
@@ -78,7 +78,7 @@ void update_player_position(player *player, ALLEGRO_BITMAP* sprite_sheet){	 // g
 	al_draw_scaled_bitmap(sprite_sheet, player->sprite_x, player->sprite_y, 16, 16, player->position_x - 16, player->position_y - 16, 16 * 2, 16 * 2, 0);		
 }
 
-void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){ // game.c
+void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){
 	int sprite_x = 32;
 	int sprite_y = 64;
 	
@@ -92,7 +92,7 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){ // game.c
 	}
 }
 
-void player_score(int* score, int enemy_type){ // game.c
+void player_score(int* score, int enemy_type){
 	static int extra_multiplyer = 1;
 	switch(enemy_type){
 		case 0:
@@ -208,7 +208,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 	
 }
 
-int two_points_distance(int x1, int x2, int y1, int y2){ // game.c
+int two_points_distance(int x1, int x2, int y1, int y2){
 	int x_difference = 0;
 	int y_difference = 0;
 	if(x1 > x2)
@@ -225,7 +225,7 @@ int two_points_distance(int x1, int x2, int y1, int y2){ // game.c
 
 }
 
-void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, unsigned short round){ // game.c
+void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, unsigned short round){
 	static int shot_delay_0 = 200; // Valor pra não começar o round com tiros
 	static int shot_delay_1 = 200; // Valor pra não começar o round com tiros	
 	int actual_distance = 0;
@@ -282,7 +282,7 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 		shot_delay_1--;
 }
 
-void draw_player_bullets(player* player, ALLEGRO_BITMAP* sprite_sheet){ // game.c
+void draw_player_bullets(player* player, ALLEGRO_BITMAP* sprite_sheet){
 	for(bullet* index = player->gun->shots; index != NULL; index = (bullet*) index->next)
 		al_draw_scaled_bitmap(sprite_sheet, 64, 0, 16, 16, index->x - 14, index->y - 16, 16 * 2, 16 * 2, 0);
 }
