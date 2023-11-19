@@ -8,7 +8,7 @@ void start_game_action(unsigned short* program_event){
 void instructions_action(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, unsigned short* running) {
     int text_width = 0, text_height = 0;
 
-    al_clear_to_color(al_map_rgb(0, 0, 0));
+    al_clear_to_color(al_map_rgb(0, 0, 30));
 
     while (*running){
         al_wait_for_event(queue, &event); // Aguarda um evento
@@ -67,7 +67,7 @@ void render_menu_option(menu_option* option, ALLEGRO_FONT* font) {
     if (option->selected) {
         al_draw_filled_rectangle(option->x - 2, option->y, option->x + option->width, option->y + option->height, al_map_rgb(255, 0, 0)); // Cor vermelha para o option selecionado
     } else {
-        al_draw_filled_rectangle(option->x - 2, option->y, option->x + option->width, option->y + option->height, al_map_rgb(0, 0, 0)); // Cor de fundo padrão
+        al_draw_filled_rectangle(option->x - 2, option->y, option->x + option->width, option->y + option->height, al_map_rgb(0, 0, 30)); // Cor de fundo padrão
     }
 
     // Desenha o texto no centro do option do menu
@@ -82,6 +82,7 @@ void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP
 
     
     al_wait_for_event(queue, &event); // Aguarda um evento
+    al_clear_to_color(al_map_rgb(0, 0, 30)); // Limpa a tela com a cor azul escuro
     // Fechar o jogo com ESC, Q e ao clicar no X
     if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         *running = 0;

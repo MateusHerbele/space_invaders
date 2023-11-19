@@ -395,7 +395,7 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 		return;
 	}else{
 		if(event.type == ALLEGRO_EVENT_TIMER){
-			al_clear_to_color(al_map_rgb(0, 0, 0));		
+			al_clear_to_color(al_map_rgb(0, 0, 30));		
 			update_player_position(player, sprite_sheet);
 			update_bullets(player, enemies, n_enemies);
 			generate_hud(hud, player, *round, sprite_sheet, font);
