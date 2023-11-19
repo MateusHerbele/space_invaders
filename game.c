@@ -1,50 +1,52 @@
 #include "game.h"
 
-void update_bullets(player *player, enemy** enemies, int n_enemies){	// game.c																																									//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
-	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
-	for (bullet *index_player = player->gun->shots; index_player != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
-		index_player->y -= BULLET_MOVE + 4;																																											//Atualiza a posição do projétil (!)
-		if ((index_player->y < 80) || (index_player->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
-			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
-				previous->next = index_player->next;																																								//Se não for, salva o próximo projétil (!)
-				// bullet_destroy(index_player);																																										//Chama o destrutor para o projétil atual (!)
-				index_player = (bullet*) previous->next;																																							//Atualiza para o próximo projétil (!)
+void update_bullets(player *player, enemy** enemies, int n_enemies){
+	bullet *previous = NULL;
+	static int contador_player = 0;
+	for (bullet *index_player = player->gun->shots; index_player != NULL;){ // Itera sobre todos os tiros do jogador
+		index_player->y -= BULLET_MOVE + 4; // Atualiza a posição do tiro
+		if ((index_player->y < 80) || (index_player->y > Y_SCREEN)){ // Se o tiro sair da tela, ele é destruído	
+			if (previous){ // Se o tiro anterior existir, ele aponta para o próximo tiro
+				previous->next = index_player->next; // O tiro anterior aponta para o próximo tiro
+				bullet_destroy(index_player); // O tiro atual é destruído
+				index_player = (bullet*) previous->next; // O tiro atual aponta para o próximo tiro
 			}
-			else {																																															//Se for o primeiro projétil da lista (!)
-				player->gun->shots = (bullet*) index_player->next;																																					//Atualiza o projétil no início da lista (!)
-				// bulmakelet_destroy(index_player);																																										//Chama o destrutor para o projétil atual (!)
-				index_player = player->gun->shots;																																									//Atualiza para o próximo projétil (!)
+			else { // Se o tiro anterior não existir, o tiro atual é o primeiro da lista
+				player->gun->shots = (bullet*) index_player->next; // O primeiro tiro da lista aponta para o próximo tiro
+				bullet_destroy(index_player); // O tiro atual é destruído
+				index_player = player->gun->shots; // O tiro atual aponta para o próximo tiro		
 			}
 		}
-		else{																																																//Se não saiu da tela (!)
-			previous = index_player;																																												//Atualiza o projétil anterior (para a próxima iteração) (!)
-			index_player = (bullet*) index_player->next;																																									//Atualiza para o próximo projétil (!)
+		else{ // Se o tiro não sair da tela, o tiro anterior aponta para o tiro atual e o tiro atual aponta para o próximo tiro
+			previous = index_player; // O tiro anterior aponta para o tiro atual					
+			index_player = (bullet*) index_player->next; // O tiro atual aponta para o próximo tiro
 		}
 	}
 
 	previous = NULL;
-	for(int i = 0; i < n_enemies; i++){
-		if(enemies[i]->gun->shots == NULL) continue;
-		for(bullet* index_enemies = enemies[i]->gun->shots; index_enemies != NULL;){
-			index_enemies->y += BULLET_MOVE;
-			if(((index_enemies->y < 0) || (index_enemies->y > Y_SCREEN)) || (index_enemies->x < 0)){
-				if(previous){
-					printf("teste1\n");
-					previous->next = index_enemies->next;
-					printf("teste2\n");
-					// bullet_destroy(index_enemies);
-					printf("teste3\n");
-					index_enemies = (bullet*) previous->next;
-					printf("teste4\n");
-				}else{
-					enemies[i]->gun->shots = (bullet*) index_enemies->next;
-					// bullet_destroy(index_enemies);
-					index_enemies = enemies[i]->gun->shots;
+	for(int i = 0; i < n_enemies; i++){ // Itera sobre todos os inimigos
+		if(enemies[i]->gun->shots == NULL) continue; // Se o inimigo não tiver disparado, pula para o próximo
+		// inimigo da vez
+		printf("inimigo x: %d, y: %d, tipo: %d, iteracao: %d\n", enemies[i]->position_x, enemies[i]->position_y, enemies[i]->type, i);
+		for(bullet* index_enemies = enemies[i]->gun->shots; index_enemies != NULL;){ // Itera sobre todos os tiros do inimigo da vez
+			index_enemies->y += BULLET_MOVE; // Atualiza a posição do tiro
+			printf("contador da vez : %d\n", contador_player++);			
+			if(((index_enemies->y < 0) || (index_enemies->y > Y_SCREEN)) || (index_enemies->x < 0)){ // Se o tiro sair da tela, ele é destruído
+				if(previous){ // Se o tiro anterior existir, ele aponta para o próximo tiro
+					printf("entrei aqui if\n");	
+					previous->next = index_enemies->next; // O tiro anterior aponta para o próximo tiro
+					bullet_destroy(index_enemies); // O tiro atual é destruído
+					index_enemies = (bullet*) previous->next; // O tiro atual aponta para o próximo tiro
+				}else{ // Se o tiro anterior não existir, o tiro atual é o primeiro da lista
+					printf("entrei aqui else\n");			
+					enemies[i]->gun->shots = (bullet*) index_enemies->next; // O primeiro tiro da lista aponta para o próximo tiro
+					bullet_destroy(index_enemies); // O tiro atual é destruído
+					index_enemies = enemies[i]->gun->shots; // O tiro atual aponta para o próximo tiro
 				}
 			}
-			else{
-				previous = index_enemies;
-				index_enemies = (bullet*) index_enemies->next;
+			else{ // Se o tiro não sair da tela, o tiro anterior aponta para o tiro atual e o tiro atual aponta para o próximo tiro
+				previous = index_enemies; // O tiro anterior aponta para o tiro atual
+				index_enemies = (bullet*) index_enemies->next; // O tiro atual aponta para o próximo tiro
 			}
 		}
 	}
@@ -92,65 +94,6 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){ // game.c
 	}
 }
 
-// void clean_shots(pistol* gun){
-//     bullet* index = gun->shots;
-//     bullet* next = NULL;
-
-//     while (index != NULL){
-//         if (index->y < 0){
-//             next = (bullet*)index->next;
-//             free(index);
-//             index = next;
-//         } else {
-//             index = (bullet*)index->next;
-//         }
-//     }
-
-//     //gun->shots = NULL;  // Atualize o ponteiro de tiros após a remoção
-// }
-
-
-// void check_collision(player *player, enemy **enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet) {
-//     // player bullets
-//     if (player->gun->shots == NULL) return;
-
-//     bullet *current_bullet = player->gun->shots;
-//     bullet *previous_bullet = NULL;
-
-//     while (current_bullet != NULL) {
-//         int hit = 0;
-
-//         for (int i = 0; i < n_enemies; i++) {
-//             if (enemies[i]->alive &&
-//                 current_bullet->x >= enemies[i]->position_x - 16 &&
-//                 current_bullet->x <= enemies[i]->position_x + 16 &&
-//                 current_bullet->y >= enemies[i]->position_y - 16 &&
-//                 current_bullet->y <= enemies[i]->position_y + 16) {
-//                 enemies[i]->alive = 0;
-//                 explosion_animation(enemies[i]->position_x, enemies[i]->position_y, sprite_sheet);
-//                 hit = 1;
-//                 break;
-//             }
-//         }
-
-//         if (hit) {
-//             bullet *temp = current_bullet;
-//             current_bullet = current_bullet->next;
-
-//             if (previous_bullet) {
-//                 previous_bullet->next = current_bullet;
-//             } else {
-//                 player->gun->shots = current_bullet;
-//             }
-
-//             bullet_destroy(temp);
-//         } else {
-//             previous_bullet = current_bullet;
-//             current_bullet = current_bullet->next;
-//         }
-//     }
-// }
-
 void player_score(int* score, int enemy_type){ // game.c
 	int extra_multiplyer = 1;
 	switch(enemy_type){
@@ -182,9 +125,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 						enemies[i]->alive = 0;
 						explosion_animation(enemies[i]->position_x - 10, enemies[i]->position_y - 10, sprite_sheet);
 						index->y = -1;
-						// bullet_destroy(index);
 						player_score(&player->score, enemies[i]->type);
-						printf("score: %d\n", player->score);
 						break;
 					}
 				}
@@ -195,9 +136,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			if(index->x >= obstacles[i]->position_x && index->x <= obstacles[i]->position_x + 64){
 				if(index->y >= obstacles[i]->position_y && index->y <= obstacles[i]->position_y + 16){
 					if(obstacles[i]->lives > 0){
-						printf("passei por aqui\n");
 						obstacles[i]->lives--;
-						// bullet_destroy(index);
 						index->y = -1;
 						break;
 					}
@@ -211,11 +150,9 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 			for(bullet* index = enemies[i]->gun->shots; index != NULL; index = (bullet*) index->next){
 			if(index->x >= player->position_x - 16 && index->x <= player->position_x + 16){
 				if(index->y >= player->position_y - 16 && index->y <= player->position_y + 16){
-					printf("entrei aqui2\n");
 					explosion_animation(player->position_x - 20, player->position_y - 20, sprite_sheet);
 					player->lives--;
 					index->x = -1;
-					// bullet_destroy(index);
 					break;
 				}
 			} // obstacles
@@ -236,7 +173,6 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 								break;
 							}
 							index->x = -1;
-							// bullet_destroy(index);
 							break;
 						}
 					}
