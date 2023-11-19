@@ -128,4 +128,5 @@ Notas:
                 shot_delay_1--;
         }
 ```
-        Nessa versão, é verificado os inimigos que estão mais próximos da nave, que segundo as exigências de seus tipos, devem atirar ou não.
+        Nessa versão, é verificado os inimigos que estão mais próximos da nave, que segundo as exigências de seus tipos, devem atirar ou não, optei por manter os atrasos a mais, pois eles causam uma baixa diferença em relação ao tempo que são atirados, porém é suficiente para que fique visualmente mais agradável e desafiador para o jogador.
+        
