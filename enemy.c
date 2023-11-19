@@ -190,6 +190,15 @@ int enemy_in_front_of_enemy(enemy* current_enemy, enemy** enemies, int n_enemies
 	return 0;
 }
 
+int bottommost_enemy(enemy** enemies, int n_enemies){
+	int bottommost = 0;
+	for(int i = 0; i < n_enemies; i++){
+		if(enemies[i]->position_y > bottommost)
+			bottommost = enemies[i]->position_y;
+	}
+	return bottommost;
+}
+
 void extra_enemy_event(enemy** enemies, int n_enemies){
 	if(enemies[n_enemies - 1]->alive) return;
 	srand(time(NULL));

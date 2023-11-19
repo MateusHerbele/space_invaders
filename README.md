@@ -4,6 +4,7 @@ Trabalho final da disciplina de Prog 2
 Extras:
     Movimentação dos Inimigos
     Colunas Vazias
+    Progressão de dificuldade a cada nível
     Inimigo extra
     Colisão entre tiros
 

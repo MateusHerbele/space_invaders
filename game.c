@@ -387,7 +387,7 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 		*running = 0;
 		return;
 	}
-	if(player->lives == 0){
+	if(player->lives == 0 || bottommost_enemy(enemies, n_enemies) >= player->position_y){
 		generate_hud(hud, player, *round, sprite_sheet, font);
 		explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
 		al_flip_display();
