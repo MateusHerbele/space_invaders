@@ -69,7 +69,9 @@ Notas:
             }else shot_delay_2--;
         }
 ```
+
         Porém seguindo o que foi pedido no trabalho alterei para que a cada atraso de tempo dois dos inimigos mais próximos a nave atirassem:
+
 ```c
         void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, unsigned short round){ // game.c
             static int shot_delay_0 = 200; // Valor pra não começar o round com tiros
@@ -128,5 +130,6 @@ Notas:
                 shot_delay_1--;
         }
 ```
+
         Nessa versão, é verificado os inimigos que estão mais próximos da nave, que segundo as exigências de seus tipos, devem atirar ou não, optei por manter os atrasos a mais, pois eles causam uma baixa diferença em relação ao tempo que são atirados, porém é suficiente para que fique visualmente mais agradável e desafiador para o jogador.
-        
+
