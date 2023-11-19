@@ -47,6 +47,6 @@ void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* spr
 void enemy_shot(enemy *enemy);
 int enemies_alive(enemy** enemies, int n_enemies);
 void free_enemies(enemy** enemies, int n_enemies);
-void remove_enemy(enemy** enemies, int n_enemies, enemy* enemy);
+int enemy_has_shot_column(bullet* elements, int column, enemy** enemies, int n_entities);
 
 #endif

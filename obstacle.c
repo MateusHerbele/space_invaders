@@ -74,3 +74,9 @@ void restore_obstacles(obstacle** obstacle, int n_obstacles){
     for(int i = 0; i < n_obstacles; i++)
         obstacle[i]->lives = 10;
 }
+
+void free_obstacles(obstacle** obstacles, int n_obstacles){
+    for(int i = 0; i < n_obstacles; i++)
+        free(obstacles[i]);
+    free(obstacles);
+}

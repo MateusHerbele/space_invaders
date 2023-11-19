@@ -10,7 +10,8 @@ int main(int argc, char** argv){
 	enemy** enemies =  create_enemies(n_enemies, 6, 11);
 	obstacle** obstacles = create_obstacles(n_obstacles, X_SCREEN, Y_SCREEN);
 	hud* hud = create_hud();
-	// Funcoes allegro
+
+	// Allegro
 	al_init();																																																//Faz a preparação de requisitos da biblioteca Allegro
 	al_init_primitives_addon();																																												//Faz a inicialização dos addons das imagens básicas
 	
@@ -21,7 +22,6 @@ int main(int argc, char** argv){
 
 	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);																																						//Cria o relógio do jogo; isso indica quantas atualizações serão realizadas por segundo (30, neste caso)
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();																																					//Cria a fila de eventos; todos os eventos (programação orientada a eventos) 
-	// ALLEGRO_FONT* font = al_create_builtin_font();		
 	ALLEGRO_DISPLAY* disp = al_create_display(X_SCREEN, Y_SCREEN);			
 
 	al_register_event_source(queue, al_get_keyboard_event_source());																																		//Indica que eventos de teclado serão inseridos na nossa fila de eventos
@@ -68,6 +68,8 @@ int main(int argc, char** argv){
 
 	generating_game(game_event, round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);
 	// Allegro
+	al_destroy_bitmap(sprite_sheet);																																										//Destrutor da imagem
+	al_destroy_bitmap(icon);																																												//Destrutor do ícone
 	al_destroy_font(font);																																													//Destrutor da fonte padrão
 	al_destroy_display(disp);																																												//Destrutor da tela
 	al_destroy_timer(timer);																																												//Destrutor do relógio

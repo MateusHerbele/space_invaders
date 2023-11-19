@@ -22,14 +22,12 @@ void bullet_move(bullet *elements){																			//Implementação da funç
 
 int has_shot_column(bullet* elements, int column){															//Implementação da função "has_shot_column"
 	for (bullet *index = elements; index != NULL; index = (bullet*) index->next){							//Para cada projétil presente na lista de projéteis informada
-		if (index->x + 32 > column && index->x - 32 < column) return 1;										//Se a trajetória for para a esquerda, movimenta um passo à esquerda														//Se a trajetória for para a direita, movimenta um passo à direita
+		if (index->x + 32 > column && index->x - 32 < column) return 1;							
 	}
 	return 0;
 }
 
 void bullet_destroy(bullet *element){
-		printf("bullet_destroy: x: %d, y: %d, endereco: %p.\n", element->x, element->y, element);
-		printf("bullet_destroy: next: %p.\n", element->next);
         bullet *next = (bullet *)element->next;
         free(element);
         element = next;

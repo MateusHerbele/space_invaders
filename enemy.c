@@ -128,6 +128,7 @@ void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* spr
 }
 
 void enemy_shot(enemy *enemy){
+	if(!enemy->alive) return;
     bullet* shot;
     shot = pistol_shot(enemy->position_x, enemy->position_y + 16, 1, enemy->gun);										//Quadrado atira para a esquerda (!)
 	enemy->gun->shots = shot;
@@ -144,23 +145,21 @@ int enemies_alive(enemy** enemies, int n_enemies){
 
 void free_enemies(enemy** enemies, int n_enemies){
 	for(int i = 0; i < n_enemies; i++){
-		destroy_bullet_list(enemies[i]->gun->shots);
+		if(enemies[i]->gun->shots != NULL)
+			destroy_bullet_list(enemies[i]->gun->shots);
 		free(enemies[i]->gun);
 		free(enemies[i]);
 	}
 	free(enemies);
 }
 
-void remove_enemy(enemy** enemies, int n_enemies, enemy* enemy){
-// 	enemy* aux = NULL;
-// 	for(int i = 0; i < n_enemies; i++){
-// 		if(enemies[i] == enemy){
-// 			free(enemies[i]);
-// 			enemies[i] = NULL;
-// 			break;
-// 		}
-// 		aux = enemies[i];
-// 	}
-// }
+int enemy_has_shot_column(bullet* elements, int column, enemy** enemies, int n_entities){
+	for(bullet* index = elements; index != NULL; index = (bullet*) index->next)
+		if(index->x + 32 > column && index->x - 32 < column) return 1;
+	
+	for(int i = 0; i < n_entities; i++)
+		for(bullet* index = enemies[i]->gun->shots; index != NULL; index = (bullet*) index->next)
+			if(index->x + 32 > column && index->x - 32 < column) return 1;
+		
+	return 0;	
 }
-

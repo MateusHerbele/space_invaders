@@ -4,6 +4,7 @@
         "obstacle.h": "c",
         "game.h": "c",
         "allegro_font.h": "c",
-        "allegro5.h": "c"
+        "allegro5.h": "c",
+        "timer.h": "c"
     }
 }

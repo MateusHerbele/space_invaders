@@ -30,3 +30,10 @@ void player_shot(player *player){
     shot = pistol_shot(player->position_x, player->position_y - 16, -1, player->gun);										//Quadrado atira para a esquerda (!)
 	player->gun->shots = shot;
 }
+
+void free_player(player* player){
+    destroy_bullet_list(player->gun->shots);
+    free(player->gun);
+    free(player->control);
+    free(player);
+}

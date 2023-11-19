@@ -104,7 +104,6 @@ void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP
         // Verifica se a tecla para cima foi pressionada
         if (event.type == ALLEGRO_EVENT_KEY_DOWN){
             if (event.keyboard.keycode == ALLEGRO_KEY_UP || event.keyboard.keycode == ALLEGRO_KEY_W) {
-                printf("entrei up\n");
                 options[selected_menu_option]->selected = false; // Desmarca o item atual
                 selected_menu_option = (selected_menu_option - 1 + 3) % 3;
                 options[selected_menu_option]->selected = true; // Marca o novo item
@@ -112,7 +111,6 @@ void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP
 
             // Verifica se a tecla para baixo foi pressionada
             if (event.keyboard.keycode == ALLEGRO_KEY_DOWN || event.keyboard.keycode == ALLEGRO_KEY_S) {
-                printf("entrei down\n");
                 options[selected_menu_option]->selected = false; // Desmarca o item atual
                 selected_menu_option = (selected_menu_option + 1) % 3;
                 options[selected_menu_option]->selected = true; // Marca o novo item
@@ -120,7 +118,6 @@ void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP
 
             // Verifica se a tecla Enter foi pressionada
             if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
-                printf("entrei enter\n");
                 switch(selected_menu_option){
                     case 0:
                         options[selected_menu_option]->action(program_event); // Executa a ação associada ao item selecionado

@@ -158,7 +158,6 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 				if(index_enemies->x >= obstacles[i]->position_x && index_enemies->x <= obstacles[i]->position_x + 64){
 					if(index_enemies->y >= obstacles[i]->position_y && index_enemies->y <= obstacles[i]->position_y + 16){
 						if(obstacles[i]->lives > 0){
-							printf("entrei aqui\n");
 							switch(enemies[i]->type){
 								case 0: 
 									obstacles[i]->lives--;
@@ -167,7 +166,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 									obstacles[i]->lives -= 2;
 								break;
 								case 2:
-									obstacles[i]->lives -= 3;
+									obstacles[i]->lives -= 2;
 								break;
 							}
 							index_enemies->x = -32;
@@ -186,7 +185,7 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 					if(enemy_index->x >= player_index->x - 16 && enemy_index->x <= player_index->x + 16){
 						if(enemy_index->y >= player_index->y - 16 && enemy_index->y <= player_index->y + 16){
 							explosion_animation(enemy_index->x - 16, enemy_index->y - 10, sprite_sheet);
-							enemy_index->x = -1;
+							enemy_index->x = -32;
 							player_index->y = -32;
 							break;
 						}
@@ -254,14 +253,18 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 			}
 		}
 	}
-	if(!shot_delay_0){
+
+	// toda essa parte vai mudar
+	if((shot_delay_0 <= 0)&& !enemy_has_shot_column(closest_enemy_0->gun->shots, closest_enemy_0->position_x, enemies, n_enemies)){
 		enemy_shot(closest_enemy_0);
 		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20 - (round/2);
 	}else shot_delay_0--;
-	if(!shot_delay_1){
+
+	if((shot_delay_1 <= 0) && !enemy_has_shot_column(closest_enemy_1->gun->shots, closest_enemy_1->position_x, enemies, n_enemies)){
 		enemy_shot(closest_enemy_1);
 		shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2);
-	}else shot_delay_1--;
+	}else
+		shot_delay_1--;
 	if(!shot_delay_2){
 		enemy_shot(closest_enemy_2);
 		shot_delay_2 = ENEMY_SHOT_COOLDOWN -  (round/2);
@@ -369,13 +372,16 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 	// Laço principal do jogo
 	al_wait_for_event(queue, &event);
 	// Verifica se a tecla ESC está pressionada ou o botão de fechar a janela foi clicado
-	if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+	if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
 		*running = 0;
+		return;
+	}
 	if(player->lives == 0){
 		generate_hud(hud, player, *round, sprite_sheet, font);
 		explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
 		al_flip_display();
 		*program_event = 2;
+		return;
 	}else{
 		if(event.type == ALLEGRO_EVENT_TIMER){
 			al_clear_to_color(al_map_rgb(0, 0, 0));		
@@ -385,7 +391,7 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 			generate_obstacles(obstacles, 4, sprite_sheet);
 			update_enemies_position(enemies, n_enemies, sprite_sheet, X_SCREEN, *round);
 			update_enemies_shots(enemies, n_enemies, sprite_sheet, player->position_x, player->position_y, *round);
-			check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet); // checa se houve colisões
+			check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet);
 			draw_player_bullets(player, sprite_sheet);
 			draw_enemies_bullets(enemies, n_enemies, sprite_sheet);
 			if(player->gun->timer) player->gun->timer--;
@@ -404,6 +410,17 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 	}
 }
 
+void free_all(player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud){
+	// Player
+	free_player(player);
+	// Enemies
+	free_enemies(enemies, n_enemies);
+	// Obstacles
+	free_obstacles(obstacles, n_obstacles);
+	// HUD
+	free(hud);
+}
+
 void generating_game(unsigned short program_event, unsigned short round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
 	unsigned short running = 1;
 		while(running){
@@ -420,5 +437,5 @@ void generating_game(unsigned short program_event, unsigned short round, player*
 				break;
 			}	
 		}
-	// free_all();
+	free_all(player, enemies, n_enemies, obstacles, n_obstacles, hud);
 }

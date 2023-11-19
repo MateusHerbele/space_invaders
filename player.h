@@ -21,5 +21,6 @@ typedef struct player{
 player* create_player(int x, int y);
 void player_move(player *player, short trajectory, unsigned short max_x);							//Implementação da função "player_move"
 void player_shot(player *player);
+void free_player(player* player);
 
 #endif // PLAYER_H
