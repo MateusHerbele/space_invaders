@@ -15,5 +15,7 @@ bullet* bullet_create(int x, int y, char trajectory, bullet *next);												/
 void bullet_move(bullet *elements);			
 int has_shot_column(bullet* elements, int column);																									//Protótipo da função de movimentação de uma bala (!)	
 void bullet_destroy(bullet* element);																											//Protótipo da função de destruição de uma bala (!)
+void enemy_bullet_destroy(bullet **element_ptr);
+void destroy_bullet_list(bullet *elements);
 
 #endif																																			//Guardas de inclusão (!)

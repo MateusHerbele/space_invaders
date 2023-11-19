@@ -34,3 +34,9 @@ void bullet_destroy(bullet *element){
         free(element);
         element = next;
 }
+
+void destroy_bullet_list(bullet *elements){
+	for (bullet *index = elements; index != NULL; index = (bullet*) index->next){
+		bullet_destroy(index);
+	}
+}

@@ -71,8 +71,8 @@ enemy** create_enemies(int n_enemies, int columns, int lines){
     return enemies;
 }
 
-void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x, int round){
-    int speed = 16 + round; // define a velocidade do movimento
+void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x, unsigned short round){
+    int speed = 16 + (round/4); // define a velocidade do movimento
 	static int animation_delay = 40;
 	static int animation_counter = 0;
 
@@ -144,6 +144,7 @@ int enemies_alive(enemy** enemies, int n_enemies){
 
 void free_enemies(enemy** enemies, int n_enemies){
 	for(int i = 0; i < n_enemies; i++){
+		destroy_bullet_list(enemies[i]->gun->shots);
 		free(enemies[i]->gun);
 		free(enemies[i]);
 	}
