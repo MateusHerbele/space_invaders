@@ -67,8 +67,8 @@ Notas:
                 enemy_shot(closest_enemy_2);
                 shot_delay_2 = ENEMY_SHOT_COOLDOWN -  (round/2);
             }else shot_delay_2--;
-        }```
-        
+        }
+        ```
         Porém seguindo o que foi pedido no trabalho alterei para que a cada atraso de tempo dois dos inimigos mais próximos a nave atirassem:
         ```c
         void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, unsigned short round){ // game.c
@@ -126,5 +126,6 @@ Notas:
                 shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2);
             }else
                 shot_delay_1--;
-        }```
+        }
+        ```
         Nessa versão, é verificado os inimigos que estão mais próximos da nave, que segundo as exigências de seus tipos, devem atirar ou não.
