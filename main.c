@@ -1,7 +1,7 @@
 #include "game.h"
 
 int main(int argc, char** argv){
-	int n_enemies = 66;
+	int n_enemies = 67;
 	int n_obstacles = 4;
 	unsigned short game_event = 0; // eh pra começar em 0, ta em 1 pra testes
 	unsigned short round = 0;

@@ -93,7 +93,7 @@ void explosion_animation(int x, int y, ALLEGRO_BITMAP* sprite_sheet){ // game.c
 }
 
 void player_score(int* score, int enemy_type){ // game.c
-	int extra_multiplyer = 1;
+	static int extra_multiplyer = 1;
 	switch(enemy_type){
 		case 0:
 			*score += 10;
@@ -105,7 +105,7 @@ void player_score(int* score, int enemy_type){ // game.c
 			*score += 40;
 		break;
 		case 3:
-			*score += 100;
+			*score += 100 * extra_multiplyer;
 			if(extra_multiplyer < 3)
 				extra_multiplyer += 1;
 		break;
@@ -118,7 +118,18 @@ void check_collision(player *player, enemy **enemies, int n_enemies, obstacle** 
 	for(bullet* index = player->gun->shots; index != NULL; index = (bullet*) index->next){
 		for(int i = 0; i < n_enemies; i++){
 			if(enemies[i]->alive){
-				if(index->x >= enemies[i]->position_x - 16 && index->x <= enemies[i]->position_x + 16){
+				if(enemies[i]->type == 3){ // Caso seja o inimigo especial aumenta a hitbox da colisão
+					if(index->x >= enemies[i]->position_x - 10 && index->x <= enemies[i]->position_x + 32){
+						if(index->y >= enemies[i]->position_y - 24 && index->y <= enemies[i]->position_y + 24){
+							enemies[i]->alive = 0;
+							explosion_animation(enemies[i]->position_x - 16, enemies[i]->position_y - 16, sprite_sheet);
+							index->y = -32;
+							player_score(&player->score, enemies[i]->type);
+							break;
+						}
+					}
+				}else
+				if(index->x >= enemies[i]->position_x - 10 && index->x <= enemies[i]->position_x + 16){
 					if(index->y >= enemies[i]->position_y - 16 && index->y <= enemies[i]->position_y + 16){
 						enemies[i]->alive = 0;
 						explosion_animation(enemies[i]->position_x - 10, enemies[i]->position_y - 10, sprite_sheet);
@@ -217,58 +228,58 @@ int two_points_distance(int x1, int x2, int y1, int y2){ // game.c
 void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int player_x, int player_y, unsigned short round){ // game.c
 	static int shot_delay_0 = 200; // Valor pra não começar o round com tiros
 	static int shot_delay_1 = 200; // Valor pra não começar o round com tiros	
-	static int shot_delay_2 = 200; // Valor pra não começar o round com tiros
 	int actual_distance = 0;
 	int closest_distance_0 = 1000; // valor arbitrário para iniciar a comparação
-	int closest_distance_1 = 1000; // valor arbitrário para iniciar a comparação
-	int closest_distance_2 = 1000; // valor arbitrário para iniciar a comparação
-	enemy* closest_enemy_0 = enemies[0];
-	enemy* closest_enemy_1 = enemies[0];
-	enemy* closest_enemy_2 = enemies[0];
+	enemy* closest_enemy_0 = NULL;
+	enemy* closest_enemy_1 = NULL;
 
 	for(int i = 0; i < n_enemies; i++){
-		if(enemies[i]->alive){
+		if(enemies[i]->alive)
 			switch(enemies[i]->type){
 				case 0:
-					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-					if(actual_distance < closest_distance_0){
-						closest_distance_0 = actual_distance;
-						closest_enemy_0 = enemies[i];
+					if(enemy_has_shot_column(enemies[i]->position_x, enemies, n_enemies) ||  enemy_in_front_of_enemy(enemies[i], enemies, n_enemies))
+						continue;
+					else{
+						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
+						if(actual_distance < closest_distance_0){
+							closest_enemy_1 = closest_enemy_0;
+							closest_distance_0 = actual_distance;
+							closest_enemy_0 = enemies[i];
+						}
 					}
 				break;
 				case 1:
-					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-					if(actual_distance < closest_distance_1){
-						closest_distance_1 = actual_distance;
-						closest_enemy_1 = enemies[i];
+					if(enemy_has_shot_column(enemies[i]->position_x, enemies, n_enemies))
+						continue;
+					else{
+						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
+						if(actual_distance < closest_distance_0){
+							closest_enemy_1 = closest_enemy_0;
+							closest_distance_0 = actual_distance;
+							closest_enemy_0 = enemies[i];
+						}
 					}
 				break;
 				case 2:
 					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-					if(actual_distance < closest_distance_2){
-						closest_distance_2 = actual_distance;
-						closest_enemy_2 = enemies[i];
+					if(actual_distance < closest_distance_0){
+						closest_enemy_1 = closest_enemy_0;
+						closest_distance_0 = actual_distance;
+						closest_enemy_0 = enemies[i];
 					}
 				break;
 			}
-		}
 	}
-
-	// toda essa parte vai mudar
-	if((shot_delay_0 <= 0)&& !enemy_has_shot_column(closest_enemy_0->gun->shots, closest_enemy_0->position_x, enemies, n_enemies)){
+	if(shot_delay_0 <= 0){
 		enemy_shot(closest_enemy_0);
 		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20 - (round/2);
 	}else shot_delay_0--;
 
-	if((shot_delay_1 <= 0) && !enemy_has_shot_column(closest_enemy_1->gun->shots, closest_enemy_1->position_x, enemies, n_enemies)){
+	if(shot_delay_1 <= 0){
 		enemy_shot(closest_enemy_1);
 		shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2);
 	}else
 		shot_delay_1--;
-	if(!shot_delay_2){
-		enemy_shot(closest_enemy_2);
-		shot_delay_2 = ENEMY_SHOT_COOLDOWN -  (round/2);
-	}else shot_delay_2--;
 }
 
 void draw_player_bullets(player* player, ALLEGRO_BITMAP* sprite_sheet){ // game.c
@@ -394,6 +405,7 @@ void game_event(short unsigned* running, unsigned short* program_event, unsigned
 			check_collision(player, enemies, n_enemies, obstacles, n_obstacles, sprite_sheet);
 			draw_player_bullets(player, sprite_sheet);
 			draw_enemies_bullets(enemies, n_enemies, sprite_sheet);
+			extra_enemy_event(enemies, n_enemies);
 			if(player->gun->timer) player->gun->timer--;
 			if(!enemies_alive(enemies, n_enemies))
 				next_round(round, player, enemies, n_enemies, obstacles, n_obstacles);

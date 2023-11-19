@@ -10,19 +10,6 @@
 #include <allegro5/allegro_color.h>
 #include <allegro5/timer.h>				
 
-typedef struct shot shot;
-struct shot{
-	int position_x;
-	int position_y;
-	int trajectory;
-	shot *next;
-} ;
-
-typedef struct shot_sentinel{
-	shot *first;
-	shot *last;
-} shot_sentinel;
-
 typedef struct frames{
 	int x1;
 	int y1;
@@ -43,10 +30,12 @@ typedef struct enemy{
 enemy* create_enemy(int x, int y, int enemy_type);
 enemy** create_enemies(int n_enemies, int columns, int lines);
 // void generate_enemies(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x);
+void move_extra_enemy(enemy* extra_enemy, ALLEGRO_BITMAP* sprite_sheet);
 void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet, int max_x, unsigned short round);
 void enemy_shot(enemy *enemy);
 int enemies_alive(enemy** enemies, int n_enemies);
 void free_enemies(enemy** enemies, int n_enemies);
-int enemy_has_shot_column(bullet* elements, int column, enemy** enemies, int n_entities);
-
+int enemy_has_shot_column(int column, enemy** enemies, int n_entities);
+int enemy_in_front_of_enemy(enemy* current_enemy, enemy** enemies, int n_enemies);
+void extra_enemy_event(enemy** enemies, int n_enemies);
 #endif
