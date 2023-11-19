@@ -3,10 +3,10 @@
 int main(int argc, char** argv){
 	int n_enemies = 66;
 	int n_obstacles = 4;
-	int game_event = 0; // eh pra começar em 0, ta em 1 pra testes
-	int round = 0;
+	unsigned short game_event = 0; // eh pra começar em 0, ta em 1 pra testes
+	unsigned short round = 0;
 
-	player* player = create_player(X_SCREEN/2, Y_SCREEN - 16);
+	player* player = create_player(X_SCREEN/2, Y_SCREEN - 64);
 	enemy** enemies =  create_enemies(n_enemies, 6, 11);
 	obstacle** obstacles = create_obstacles(n_obstacles, X_SCREEN, Y_SCREEN);
 	hud* hud = create_hud();

@@ -3,7 +3,7 @@
 void update_bullets(player *player, enemy** enemies, int n_enemies){	// game.c																																									//Implementação da função que atualiza o posicionamento de projéteis conforme o movimento dos mesmos (!)
 	bullet *previous = NULL;																																												//Variável auxiliar para salvar a posição imediatamente anterior na fila (!)
 	for (bullet *index_player = player->gun->shots; index_player != NULL;){																																				//Para cada projétil presente na lista de projéteis disparados (!)
-		index_player->y -= BULLET_MOVE;																																											//Atualiza a posição do projétil (!)
+		index_player->y -= BULLET_MOVE + 4;																																											//Atualiza a posição do projétil (!)
 		if ((index_player->y < 80) || (index_player->y > Y_SCREEN)){																																						//Verifica se o projétil saiu das bordas da janela (!)
 			if (previous){																																													//Verifica se não é o primeiro elemento da lista de projéteis (!)
 				previous->next = index_player->next;																																								//Se não for, salva o próximo projétil (!)
@@ -24,7 +24,6 @@ void update_bullets(player *player, enemy** enemies, int n_enemies){	// game.c		
 
 	previous = NULL;
 	for(int i = 0; i < n_enemies; i++){
-		printf("teste lopp entrei \n");
 		if(enemies[i]->gun->shots == NULL) continue;
 		for(bullet* index_enemies = enemies[i]->gun->shots; index_enemies != NULL;){
 			index_enemies->y += BULLET_MOVE;
@@ -357,17 +356,67 @@ void draw_enemies_bullets(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 		}
 	}
 }
-void menu_event(unsigned short* running, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font){
+
+void restart_conditions(unsigned short* round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles){
+	// player
+	player->position_x = X_SCREEN/2;
+	player->position_y = Y_SCREEN - 64;
+	player->max_lives = 3;
+	player->lives = 3;
+	player->score = 0;
+	// enemies
+	free_enemies(enemies, n_enemies);
+	enemies = create_enemies(n_enemies, 6, 11);
+	// obstacles
+	restore_obstacles(obstacles, n_obstacles);
+	// round
+	*round = 0;
+
+}
+
+
+void game_over_event(unsigned short* running, unsigned short* program_event, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, int round, int score){ // &running, &program_event, event, queue, font, round, player->score
+	int text_width = 0, text_height = 0;
+	al_wait_for_event(queue, &event);
+	if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		*running = 0;
+	if(event.type == ALLEGRO_EVENT_TIMER){
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_draw_rectangle(200, 200, 450, 300, al_map_rgb(255, 255, 255), 2);
+		text_width = al_get_text_width(font, "GAME OVER");
+		text_height = al_get_font_line_height(font);
+		al_draw_text(font, al_map_rgb(255, 0, 0), 220 + (200 - text_width) / 2, 200 + (50 - text_height) / 2, 0, "GAME OVER");
+		text_width = al_get_text_width(font, "ROUND: ");
+		al_draw_textf(font, al_map_rgb(112, 221, 165), 200 + (200 - text_width) / 2, 225 + (50 - text_height) / 2, 0, "ROUND: %d", round);
+		text_width = al_get_text_width(font, "SCORE: ");
+		al_draw_textf(font, al_map_rgb(255, 255, 73), 200 + (200 - text_width) / 2, 250 + (50 - text_height) / 2, 0, "SCORE: %d", score);
+		text_width = al_get_text_width(font, "PRESS 'ENTER' TO RESTART");
+		al_draw_text(font, al_map_rgb(255, 255, 255), 220 + (200 - text_width) / 2, 700 + (50 - text_height) / 2, 0, "PRESS 'ENTER' TO RESTART");
+		text_width = al_get_text_width(font, "PRESS 'ESC' TO QUIT");
+		al_draw_text(font, al_map_rgb(255, 255, 255), 220 + (200 - text_width) / 2, 750 + (50 - text_height) / 2, 0, "PRESS 'ESC' TO QUIT");
+		al_flip_display();
+	}else{
+		if(event.type == ALLEGRO_EVENT_KEY_DOWN){
+			if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){
+				*program_event = 1;
+			}
+			if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+				*running = 0;
+		}
+	}
+}
+
+void menu_event(unsigned short* running, unsigned short* program_event, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_FONT* font){
 	static menu_option start_button = {(X_SCREEN/2) - 100, 300, 200, 50, "START GAME", true, start_game_action};
 	static menu_option instructions_button = {(X_SCREEN/2) - 100, 400, 200, 50, "INSTRUCTIONS", false, instructions_action};
 	static menu_option quit_button = {(X_SCREEN/2) - 100, 500, 200, 50, "QUIT GAME", false, quit_game_action};
 
 	menu_option* options[] = {&start_button, &instructions_button, &quit_button};
-	render_menu(event, queue, sprite_sheet, options, font, running);
+	render_menu(event, queue, sprite_sheet, options, font, running, program_event);
 
 }
 
-void game_event(short unsigned* running, int round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
+void game_event(short unsigned* running, unsigned short* program_event, int round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
 	// Laço principal do jogo
 	al_wait_for_event(queue, &event);
 	// Verifica se a tecla ESC está pressionada ou o botão de fechar a janela foi clicado
@@ -377,7 +426,7 @@ void game_event(short unsigned* running, int round, player* player, enemy** enem
 		generate_hud(hud, player, round, sprite_sheet, font);
 		explosion_animation(player->position_x - 16, player->position_y -16, sprite_sheet);
 		al_flip_display();
-		*running = 0;
+		*program_event = 2;
 	}else{
 		if(event.type == ALLEGRO_EVENT_TIMER){
 			al_clear_to_color(al_map_rgb(0, 0, 0));		
@@ -409,33 +458,31 @@ void game_event(short unsigned* running, int round, player* player, enemy** enem
 			al_flip_display();																																		
 		}else{
 			if ((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_KEY_UP)){																																				//Verifica se o evento é de botão do teclado abaixado ou levantado
-			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT){
+			if (event.keyboard.keycode == ALLEGRO_KEY_A || event.keyboard.keycode == ALLEGRO_KEY_LEFT)
 				joystick_left(player->control);
-				// player->sprite_x = 16;
-			} 																															//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à esquerda)
-			else if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT){
+			else if (event.keyboard.keycode == ALLEGRO_KEY_D || event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
 				joystick_right(player->control);
-				// player->sprite_x = 16;
-			} 																													//Indica o evento correspondente no controle do primeiro jogador (botão de movimentação à direita)
 			else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE || event.keyboard.keycode == ALLEGRO_KEY_Z) joystick_fire(player->control);																														//Indica o evento correspondente no controle do primeiro joagdor (botão de disparo - c) (!)					
 			}
 		}
 	}
 }
 
-void generating_game(int program_event, int round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
-		unsigned short running = 1;
+void generating_game(unsigned short program_event, unsigned short round, player* player, enemy** enemies, int n_enemies, obstacle** obstacles, int n_obstacles, hud* hud, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* disp, ALLEGRO_EVENT event){
+	unsigned short running = 1;
 		while(running){
 			switch(program_event){
 				case 0: // menu event
-				menu_event(&running, event, queue, sprite_sheet, font);
+				menu_event(&running, &program_event, event, queue, sprite_sheet, font);
 				break;
 				case 1: // game event
-				game_event(&running, round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);
+				game_event(&running, &program_event, round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);
 				break;		
 				case 2: // game over event
+				restart_conditions(&round, player, enemies, n_enemies, obstacles, n_obstacles);
+				game_over_event(&running, &program_event, event, queue, font, round, player->score);
 				break;
 			}	
-	}
-
+		}
+	// free_all();
 }
