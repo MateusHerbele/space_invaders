@@ -1,26 +1,26 @@
 #include  "menu.h"
 
-
+// Inicializa o jogo
 void start_game_action(unsigned short* program_event){
-    *program_event = 1;
+    *program_event = 1; // MUda o evento pro jogo
 }
+// Gera a tela de instruções
+void instructions_action(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, unsigned short* running){
+    int text_width = 0, text_height = 0; // Largura e altura do texto
 
-void instructions_action(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, ALLEGRO_BITMAP* sprite_sheet, unsigned short* running) {
-    int text_width = 0, text_height = 0;
+    al_clear_to_color(al_map_rgb(0, 0, 30)); // Limpa a tela com a cor azul escuro
 
-    al_clear_to_color(al_map_rgb(0, 0, 30));
-
-    while (*running){
+    while (*running){ // Looping das instruções
         al_wait_for_event(queue, &event); // Aguarda um evento
         // Fechar o jogo com ESC, Q e ao clicar no X
-        if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
                 *running = 0;
                 break;
             }
-        if (event.type == ALLEGRO_EVENT_TIMER) {
+        if(event.type == ALLEGRO_EVENT_TIMER){ // Se for um evento de timer, desenha as instruções
             // Representa as instruções
-            text_width = al_get_text_width(font, "-DEFEAT ALL ENEMIES");
-            text_height = al_get_font_line_height(font);
+            text_width = al_get_text_width(font, "-DEFEAT ALL ENEMIES"); // Largura do texto
+            text_height = al_get_font_line_height(font); // Altura do texto
             al_draw_text(font, al_map_rgb(255, 0, 0), 220 + (200 - text_width) / 2, 100 + (50 - text_height) / 2, 0, "-DEFEAT ALL ENEMIES");
             text_width = al_get_text_width(font, "TO MOVE TO THE NEXT ROUND-");
             al_draw_text(font, al_map_rgb(255, 0, 0), 220 + (200 - text_width) / 2, 120 + (50 - text_height) / 2, 0, "TO MOVE TO THE NEXT ROUND-");
@@ -47,50 +47,49 @@ void instructions_action(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGR
             // Representa o retorno pro menu
             text_width = al_get_text_width(font, "PRESS 'ENTER' TO RETURN TO MENU");
             al_draw_text(font, al_map_rgb(255, 255, 255), 220 + (200 - text_width) / 2, 700 + (50 - text_height) / 2, 0, "PRESS 'ENTER' TO RETURN TO MENU");
-            al_flip_display();
-        } else if (event.type == ALLEGRO_EVENT_KEY_DOWN) 
+            al_flip_display(); // Atualiza a tela
+        } else if(event.type == ALLEGRO_EVENT_KEY_DOWN) // Verifica se alguma tecla foi pressionada
             // Verifica se a tecla Enter foi pressionada
-            if (event.keyboard.keycode == ALLEGRO_KEY_ENTER){
+            if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){ // Se sim, retorna para o menu
                 al_clear_to_color(al_map_rgb(0, 0, 0)); // Necessário para apagar o texto das instruções
-                break;
+                break; // Sai do loop
             } 
     }
 }
 
-
+// Fecha o jogo
 void quit_game_action(unsigned short* running){
-    *running = 0;
+    *running = 0; // Quebra o looping dos eventos
 }
-
-void render_menu_option(menu_option* option, ALLEGRO_FONT* font) {
+// Renderiza uma opção do menu
+void render_menu_option(menu_option* option, ALLEGRO_FONT* font){
     // Desenha o fundo do option do menu
-    if (option->selected) {
+    if(option->selected){ // Verifica se o option está selecionado
         al_draw_filled_rectangle(option->x - 2, option->y, option->x + option->width, option->y + option->height, al_map_rgb(255, 0, 0)); // Cor vermelha para o option selecionado
     } else {
         al_draw_filled_rectangle(option->x - 2, option->y, option->x + option->width, option->y + option->height, al_map_rgb(0, 0, 30)); // Cor de fundo padrão
     }
 
     // Desenha o texto no centro do option do menu
-    int text_width = al_get_text_width(font, option->text);
-    int text_height = al_get_font_line_height(font);
+    int text_width = al_get_text_width(font, option->text); // Largura do texto
+    int text_height = al_get_font_line_height(font); // Altura do texto
     al_draw_text(font, al_map_rgb(255, 255, 255), option->x + (option->width - text_width) / 2, option->y + (option->height - text_height) / 2, 0, option->text);
 }
-
-void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* sprite_sheet, menu_option* options[], ALLEGRO_FONT* font, unsigned short* running, unsigned short* program_event) {
+// Renderiza o menu
+void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* sprite_sheet, menu_option* options[], ALLEGRO_FONT* font, unsigned short* running, unsigned short* program_event){
     static int selected_menu_option = 0; // Índice do item selecionado
-    int text_width = 0, text_height = 0;
+    int text_width = 0, text_height = 0; // Largura e altura do texto
 
     
     al_wait_for_event(queue, &event); // Aguarda um evento
     al_clear_to_color(al_map_rgb(0, 0, 30)); // Limpa a tela com a cor azul escuro
     // Fechar o jogo com ESC, Q e ao clicar no X
-    if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-        *running = 0;
+    if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE || event.keyboard.keycode == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        *running = 0; // Quebra o looping dos eventos
     
-    if(event.type == ALLEGRO_EVENT_TIMER){
-        // Desenha as opções do menu
-        for (int i = 0; i < 3; i++) 
-        render_menu_option(options[i], font);
+    if(event.type == ALLEGRO_EVENT_TIMER){ // Se for um evento de timer, desenha o menu
+        for(int i = 0; i < 3; i++) // Desenha os options do menu 
+            render_menu_option(options[i], font);
     
         // Desenha o logo do menu
         al_draw_scaled_bitmap(sprite_sheet, 48, 0, 16, 16, 640/2 - 135, 10, 16 * 16, 16 * 16, 0);
@@ -99,26 +98,25 @@ void render_menu(ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP
         text_height = al_get_font_line_height(font);
         al_draw_text(font, al_map_rgb(255, 255, 255), 220 + (200 - text_width) / 2, 700 + (50 - text_height) / 2, 0, "PRESS 'ENTER' TO SELECT");
 
-        al_flip_display();
+        al_flip_display(); // Atualiza a tela
 
     }else{
-        // Verifica se a tecla para cima foi pressionada
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN){
-            if (event.keyboard.keycode == ALLEGRO_KEY_UP || event.keyboard.keycode == ALLEGRO_KEY_W) {
+        if(event.type == ALLEGRO_EVENT_KEY_DOWN){ // Verifica se alguma tecla foi pressionada
+            if(event.keyboard.keycode == ALLEGRO_KEY_UP || event.keyboard.keycode == ALLEGRO_KEY_W){ // Verifica se a tecla para cima foi pressionada
                 options[selected_menu_option]->selected = false; // Desmarca o item atual
-                selected_menu_option = (selected_menu_option - 1 + 3) % 3;
+                selected_menu_option = (selected_menu_option - 1 + 3) % 3; // Calcula o índice do novo item
                 options[selected_menu_option]->selected = true; // Marca o novo item
             }
 
             // Verifica se a tecla para baixo foi pressionada
-            if (event.keyboard.keycode == ALLEGRO_KEY_DOWN || event.keyboard.keycode == ALLEGRO_KEY_S) {
+            if(event.keyboard.keycode == ALLEGRO_KEY_DOWN || event.keyboard.keycode == ALLEGRO_KEY_S){ // Verifica se a tecla para baixo foi pressionada
                 options[selected_menu_option]->selected = false; // Desmarca o item atual
-                selected_menu_option = (selected_menu_option + 1) % 3;
+                selected_menu_option = (selected_menu_option + 1) % 3; // Calcula o índice do novo item
                 options[selected_menu_option]->selected = true; // Marca o novo item
             }
 
             // Verifica se a tecla Enter foi pressionada
-            if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+            if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){ // Se sim, executa a ação do item selecionado
                 switch(selected_menu_option){
                     case 0:
                         options[selected_menu_option]->action(program_event); // Executa a ação associada ao item selecionado

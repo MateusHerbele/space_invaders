@@ -4,6 +4,9 @@
 #include "Pistol.h"
 #include "Joystick.h"
 
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_image.h>
+
 #define STEPS 5
 
 typedef struct player{
@@ -18,9 +21,25 @@ typedef struct player{
     pistol* gun;
 } player;
 
+// Cria o player e seus componentes
 player* create_player(int x, int y);
-void player_move(player *player, short trajectory, unsigned short max_x);							//Implementação da função "player_move"
+// Move o player
+
+void player_move(player *player, short trajectory, unsigned short max_x);
+// Atira
+
 void player_shot(player *player);
+// Libera o espaço alocado para o player e seus componentes
+
 void free_player(player* player);
+// Atualiza a pontuação do player
+
+void player_score(int* score, int enemy_type);
+// Atualiza a posição do player e desenha ele na tela
+
+void update_player_position(player *player, ALLEGRO_BITMAP* sprite_sheet);
+// Desenha os tiros do player
+
+void draw_player_bullets(player* player, ALLEGRO_BITMAP* sprite_sheet); 
 
 #endif // PLAYER_H
