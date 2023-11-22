@@ -185,7 +185,7 @@ void restart_conditions(unsigned short* round, player* player, enemy** enemies, 
 	*round = 0;
 }
 // Renderiza a tela de game over
-void game_over_event(unsigned short* running, unsigned short* program_event, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, int round, int score){ 
+void game_over_event(unsigned short* running, unsigned short* program_event, ALLEGRO_EVENT event, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_FONT* font, unsigned short round, int score){ 
 	int text_width = 0, text_height = 0;
 	al_wait_for_event(queue, &event); // Espera por um evento
 	if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) // Verifica se o botão de fechar a janela foi clicado
@@ -197,7 +197,7 @@ void game_over_event(unsigned short* running, unsigned short* program_event, ALL
 		text_height = al_get_font_line_height(font); // Obtém a altura do texto
 		al_draw_text(font, al_map_rgb(255, 0, 0), 220 + (200 - text_width) / 2, 200 + (50 - text_height) / 2, 0, "GAME OVER"); // Desenha o texto
 		text_width = al_get_text_width(font, "ROUND: ");
-		al_draw_textf(font, al_map_rgb(112, 221, 165), 200 + (200 - text_width) / 2, 225 + (50 - text_height) / 2, 0, "ROUND: %d", round);
+		al_draw_textf(font, al_map_rgb(112, 221, 165), 200 + (200 - text_width) / 2, 225 + (50 - text_height) / 2, 0, "ROUND: %u", round/8 + 1);
 		text_width = al_get_text_width(font, "SCORE: ");
 		al_draw_textf(font, al_map_rgb(255, 255, 73), 200 + (200 - text_width) / 2, 250 + (50 - text_height) / 2, 0, "SCORE: %d", score);
 		text_width = al_get_text_width(font, "PRESS 'ENTER' TO RESTART");
@@ -208,7 +208,7 @@ void game_over_event(unsigned short* running, unsigned short* program_event, ALL
 	}else{ // Se o evento dentro da fila não for timer
 		if(event.type == ALLEGRO_EVENT_KEY_DOWN){ // Verifica se teve alguma tecla pressionada
 			if(event.keyboard.keycode == ALLEGRO_KEY_ENTER) // Verifica se a tecla ENTER foi pressionada
-				*program_event = 1; // Redireciona para o evento do jogo, reiniando o jogo
+				*program_event = 3; // Redireciona para o evento do jogo, reiniando o jogo
 			
 			if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) // Verifica se a tecla ESC foi pressionada
 				*running = 0; // Encerra o jogo no looping principal
@@ -305,8 +305,11 @@ void generating_game(unsigned short program_event, unsigned short round, player*
 				game_event(&running, &program_event, &round, player, enemies, n_enemies, obstacles, n_obstacles, hud, font, sprite_sheet, timer, queue, disp, event);
 				break;		
 				case 2: // game over event
-				restart_conditions(&round, player, enemies, n_enemies, obstacles, n_obstacles);
 				game_over_event(&running, &program_event, event, queue, font, round, player->score);
+				break;
+				case 3:
+				restart_conditions(&round, player, enemies, n_enemies, obstacles, n_obstacles);
+				program_event = 1;
 				break;
 			}	
 		}

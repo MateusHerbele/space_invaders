@@ -147,6 +147,7 @@ void update_enemies_position(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* spr
 }
 // Faz o inimigo atirar
 void enemy_shot(enemy *enemy){
+	if(enemy == NULL) return; // Se o inimigo for nulo, não atira
 	if(!enemy->alive) return; // Se o inimigo estiver morto, não atira
     bullet* shot; // Cria uma bala
     shot = pistol_shot(enemy->position_x, enemy->position_y + 16, 1, enemy->gun); // Cria uma bala
@@ -230,10 +231,11 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 	static int shot_delay_1 = 200; // Valor pra não começar o round com tiros	
 	int actual_distance = 0; // Distância atual
 	int closest_distance_0 = 1000; // valor arbitrário para iniciar a comparação
+	int closest_distance_1 = 1000; // valor arbitrário para iniciar a comparação
 	enemy* closest_enemy_0 = NULL; // Inimigo mais próximo
 	enemy* closest_enemy_1 = NULL; // Segundo inimigo mais próximo
 
-	for(int i = 0; i < n_enemies; i++){ // Itera sobre o array de inimigos
+	for(int i = 0; i < n_enemies - 1; i++){ // Itera sobre o array de inimigos
 		if(enemies[i]->alive) // Se o inimigo estiver vivo
 			switch(enemies[i]->type){ // Verifica o tipo de inimigo e realiza a ação correspondente, e salva os inimigos mais próximos
 				case 0:
@@ -241,11 +243,14 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 						continue;
 					else{
 						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-						if(actual_distance < closest_distance_0){
-							if(enemies_alive(enemies, n_enemies) > 1)
-								closest_enemy_1 = closest_enemy_0;
-							closest_distance_0 = actual_distance;
-							closest_enemy_0 = enemies[i];
+						if(actual_distance < closest_distance_1){
+							if(actual_distance < closest_distance_0){
+								closest_distance_0 = actual_distance;
+								closest_enemy_0 = enemies[i];
+							}else{
+								closest_distance_1 = actual_distance;
+								closest_enemy_1 = enemies[i];
+							}
 						}
 					}
 				break;
@@ -254,36 +259,41 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 						continue;
 					else{
 						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-						if(actual_distance < closest_distance_0){
-							if(enemies_alive(enemies, n_enemies) > 1)
-								closest_enemy_1 = closest_enemy_0;
-							closest_distance_0 = actual_distance;
-							closest_enemy_0 = enemies[i];
+						if(actual_distance < closest_distance_1){
+							if(actual_distance < closest_distance_0){
+								closest_distance_0 = actual_distance;
+								closest_enemy_0 = enemies[i];
+							}else{
+								closest_distance_1 = actual_distance;
+								closest_enemy_1 = enemies[i];
+							}
 						}
 					}
 				break;
 				case 2:
 					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
-					if(actual_distance < closest_distance_0){
-						if(enemies_alive(enemies, n_enemies) > 1)
-							closest_enemy_1 = closest_enemy_0;
-						closest_distance_0 = actual_distance;
-						closest_enemy_0 = enemies[i];
+					if(actual_distance < closest_distance_1){
+						if(actual_distance < closest_distance_0){
+							closest_distance_0 = actual_distance;
+							closest_enemy_0 = enemies[i];
+						}else{
+							closest_distance_1 = actual_distance;
+							closest_enemy_1 = enemies[i];
+						}
 					}
 				break;
 			}
 	}
+
 	if(shot_delay_0 <= 0){ // Se o delay do tiro for 0, atira
 		enemy_shot(closest_enemy_0); // Atira
 		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20 - (round/2); // Reseta o delay
 	}else shot_delay_0--; // Se não, decrementa o delay
-	if(enemies_alive(enemies, n_enemies) > 1){ // Se tiver mais de um inimigo vivo
-		if(shot_delay_1 <= 0){ // Se o delay do tiro for 0, atira
-			enemy_shot(closest_enemy_1);// Atira
-			shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2); // Reseta o delay
-		}else shot_delay_1--; // Se não, decrementa o delay
-	}
-
+	
+	if(shot_delay_1 <= 0 && closest_enemy_1){ // Se o delay do tiro for 0 e closest_enemy_1 for diferente de nulo, atira
+		enemy_shot(closest_enemy_1);// Atira
+		shot_delay_1 = ENEMY_SHOT_COOLDOWN + 10 - (round/2); // Reseta o delay
+	}else shot_delay_1--; // Se não, decrementa o delay
 }
 // Desenha os tiros dos inimigos
 void draw_enemies_bullets(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite_sheet){
