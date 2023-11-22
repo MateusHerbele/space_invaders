@@ -245,6 +245,8 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
 						if(actual_distance < closest_distance_1){
 							if(actual_distance < closest_distance_0){
+								closest_distance_1 = closest_distance_0;
+								closest_enemy_1 = closest_enemy_0;
 								closest_distance_0 = actual_distance;
 								closest_enemy_0 = enemies[i];
 							}else{
@@ -261,6 +263,8 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 						actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
 						if(actual_distance < closest_distance_1){
 							if(actual_distance < closest_distance_0){
+								closest_distance_1 = closest_distance_0;
+								closest_enemy_1 = closest_enemy_0;
 								closest_distance_0 = actual_distance;
 								closest_enemy_0 = enemies[i];
 							}else{
@@ -274,6 +278,8 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 					actual_distance = two_points_distance(enemies[i]->position_x, player_x, enemies[i]->position_y, player_y);
 					if(actual_distance < closest_distance_1){
 						if(actual_distance < closest_distance_0){
+							closest_distance_1 = closest_distance_0;
+							closest_enemy_1 = closest_enemy_0;
 							closest_distance_0 = actual_distance;
 							closest_enemy_0 = enemies[i];
 						}else{
@@ -284,7 +290,6 @@ void update_enemies_shots(enemy** enemies, int n_enemies, ALLEGRO_BITMAP* sprite
 				break;
 			}
 	}
-
 	if(shot_delay_0 <= 0){ // Se o delay do tiro for 0, atira
 		enemy_shot(closest_enemy_0); // Atira
 		shot_delay_0 = ENEMY_SHOT_COOLDOWN + 20 - (round/2); // Reseta o delay
