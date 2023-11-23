@@ -4,7 +4,7 @@
 joystick* joystick_create(){														//Implementação da função "joystick_create"
 
 	joystick *element = (joystick*) malloc (sizeof(joystick));						//Aloca memória na heap para um novo controle
-	if (!element) return NULL;														//Se a alocação não deu certo, retorna erro
+	if(!element) return NULL;														//Se a alocação não deu certo, retorna erro
 	element->right = 0;																//Insere o estado de desligado para o botão de movimentação à esquerda
 	element->left = 0;																//Insere o estado de desligado para o botão de movimentação à direita
 	element->up = 0;																//Insere o estado de desligado para o botão de movimentação para cima

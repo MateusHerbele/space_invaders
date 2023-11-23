@@ -15,9 +15,19 @@ typedef struct {
     short lives;
 } obstacle;
 
+// Cria um obstáculo
 obstacle* obstacle_create(int x, int y);
+// Cria um array de obstáculos
+
 obstacle** create_obstacles(int n_obstacles, int max_x, int max_y);
+// Gera os obstáculos na tela
+
 void generate_obstacles(obstacle** array, int n_obstacles, ALLEGRO_BITMAP* sprite_sheet);
+// Restaura a vida dos obstáculos
+
 void restore_obstacles(obstacle** obstacle, int n_obstacles);
+// Libera o espaço alocado para o obstáculo
+
+void free_obstacles(obstacle** obstacles, int n_obstacles);
 
 #endif // __OBSTACLE__
