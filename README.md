@@ -72,7 +72,13 @@ Notas:
 ```
 
 
-        Porém seguindo o que foi pedido no trabalho alterei para que a cada atraso de tempo dois dos inimigos mais próximos a nave atirassem:
+
+
+
+Porém seguindo o que foi pedido no trabalho alterei para que a cada atraso de tempo dois dos inimigos mais próximos a nave atirassem:
+
+
+
 
 
 
