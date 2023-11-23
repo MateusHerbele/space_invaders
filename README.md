@@ -176,3 +176,8 @@ Eu optei por não deixar ele vermelho, pois esteticamente pra mim é mais agrad�
     
 Progressão de dificuldade a cada nível:
 Eu coloquei o nome da progressão como round, quando você termina o round vc aumenta a cadência dos inimigos e a velocidade de movimento deles progessivamente, ou seja a cada round a dificuldade torna-se maior ainda.
+
+
+Referência dos Sprites, na qual comprei para usar para o que foi usado de inspiração ou diretamente como inimigo:
+https://rgsdev.itch.io/space-shooter-pack-pixel-art-2d-by-rgsdev
+	
